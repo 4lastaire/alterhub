@@ -15,11 +15,11 @@ import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Markdown from "react-native-markdown-display";
 import Colors from "@/constants/colors";
 import { MemberAvatar } from "@/components/MemberAvatar";
 import { ColorPicker } from "@/components/ColorPicker";
 import { useSystem } from "@/context/SystemContext";
-import type { Member } from "@/context/SystemContext";
 
 export default function MemberDetailScreen() {
   const C = Colors.dark;
@@ -36,6 +36,7 @@ export default function MemberDetailScreen() {
   const [color, setColor] = useState(existing?.color || "#4ECDC4");
   const [avatarUrl, setAvatarUrl] = useState(existing?.avatarUrl || "");
   const [saving, setSaving] = useState(false);
+  const [descMode, setDescMode] = useState<"edit" | "preview">("edit");
 
   useEffect(() => {
     if (existing) {
@@ -68,7 +69,7 @@ export default function MemberDetailScreen() {
       }
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       router.back();
-    } catch (e) {
+    } catch {
       Alert.alert("Error", "Failed to save member.");
     } finally {
       setSaving(false);
@@ -96,6 +97,23 @@ export default function MemberDetailScreen() {
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom;
+
+  const markdownStyles = {
+    body: { color: C.text, fontFamily: "Inter_400Regular", fontSize: 14, lineHeight: 22 },
+    heading1: { color: C.text, fontFamily: "Inter_700Bold", fontSize: 20, marginBottom: 8 },
+    heading2: { color: C.text, fontFamily: "Inter_600SemiBold", fontSize: 17, marginBottom: 6 },
+    heading3: { color: C.text, fontFamily: "Inter_600SemiBold", fontSize: 15, marginBottom: 4 },
+    strong: { color: C.text, fontFamily: "Inter_600SemiBold" },
+    em: { color: C.text, fontFamily: "Inter_400Regular", fontStyle: "italic" },
+    link: { color: C.tint },
+    blockquote: { backgroundColor: C.surfaceElevated, borderLeftColor: C.tint, borderLeftWidth: 3, paddingLeft: 12, marginLeft: 0 },
+    code_inline: { backgroundColor: C.surfaceElevated, color: C.tint, fontFamily: "Inter_400Regular", fontSize: 13 },
+    fence: { backgroundColor: C.surfaceElevated, borderRadius: 8, padding: 12 },
+    code_block: { backgroundColor: C.surfaceElevated, borderRadius: 8, padding: 12 },
+    bullet_list_icon: { color: C.tint },
+    ordered_list_icon: { color: C.tint },
+    hr: { backgroundColor: C.border },
+  };
 
   return (
     <KeyboardAvoidingView
@@ -180,8 +198,7 @@ export default function MemberDetailScreen() {
               style={[
                 styles.hexPreview,
                 {
-                  backgroundColor:
-                    /^#[0-9A-Fa-f]{6}$/.test(color) ? color : C.textTertiary,
+                  backgroundColor: /^#[0-9A-Fa-f]{6}$/.test(color) ? color : C.textTertiary,
                   borderColor: /^#[0-9A-Fa-f]{6}$/.test(color) ? color : C.border,
                 },
               ]}
@@ -204,18 +221,49 @@ export default function MemberDetailScreen() {
           </View>
         </View>
 
-        <Text style={[styles.sectionLabel, { color: C.textSecondary }]}>DESCRIPTION</Text>
+        <View style={styles.descHeader}>
+          <Text style={[styles.sectionLabel, { color: C.textSecondary, marginBottom: 0 }]}>DESCRIPTION</Text>
+          <View style={[styles.toggleRow, { backgroundColor: C.surfaceElevated, borderColor: C.border }]}>
+            <Pressable
+              onPress={() => setDescMode("edit")}
+              style={[styles.toggleBtn, descMode === "edit" && { backgroundColor: C.tint }]}
+            >
+              <Text style={[styles.toggleText, { color: descMode === "edit" ? "#fff" : C.textSecondary }]}>
+                Edit
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => setDescMode("preview")}
+              style={[styles.toggleBtn, descMode === "preview" && { backgroundColor: C.tint }]}
+            >
+              <Text style={[styles.toggleText, { color: descMode === "preview" ? "#fff" : C.textSecondary }]}>
+                Preview
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+
         <View style={[styles.section, { backgroundColor: C.surface, borderColor: C.border }]}>
-          <TextInput
-            value={description}
-            onChangeText={setDescription}
-            placeholder="Write a description..."
-            placeholderTextColor={C.textTertiary}
-            style={[styles.descInput, { color: C.text }]}
-            multiline
-            numberOfLines={5}
-            textAlignVertical="top"
-          />
+          {descMode === "edit" ? (
+            <TextInput
+              value={description}
+              onChangeText={setDescription}
+              placeholder={"Write a description...\n\nSupports **bold**, *italic*, # headings, > quotes, and more."}
+              placeholderTextColor={C.textTertiary}
+              style={[styles.descInput, { color: C.text }]}
+              multiline
+              numberOfLines={8}
+              textAlignVertical="top"
+            />
+          ) : description.trim() ? (
+            <View style={styles.markdownWrapper}>
+              <Markdown style={markdownStyles as any}>{description}</Markdown>
+            </View>
+          ) : (
+            <View style={styles.emptyPreview}>
+              <Text style={[styles.emptyPreviewText, { color: C.textTertiary }]}>Nothing to preview</Text>
+            </View>
+          )}
         </View>
 
         {!isNew && (
@@ -316,26 +364,51 @@ const styles = StyleSheet.create({
     height: 1,
     marginHorizontal: 16,
   },
+  descHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 6,
+    marginLeft: 4,
+    marginRight: 0,
+  },
+  toggleRow: {
+    flexDirection: "row",
+    borderRadius: 8,
+    borderWidth: 1,
+    overflow: "hidden",
+    padding: 2,
+    gap: 2,
+  },
+  toggleBtn: {
+    paddingHorizontal: 14,
+    paddingVertical: 5,
+    borderRadius: 6,
+  },
+  toggleText: {
+    fontSize: 12,
+    fontWeight: "600",
+    fontFamily: "Inter_600SemiBold",
+  },
   descInput: {
     padding: 16,
     fontSize: 14,
     fontFamily: "Inter_400Regular",
-    minHeight: 110,
+    minHeight: 140,
   },
-  deleteBtn: {
-    flexDirection: "row",
+  markdownWrapper: {
+    padding: 16,
+    minHeight: 80,
+  },
+  emptyPreview: {
+    padding: 16,
+    minHeight: 80,
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
-    paddingVertical: 14,
-    borderRadius: 14,
-    borderWidth: 1,
-    marginTop: 12,
   },
-  deleteText: {
-    fontSize: 15,
-    fontWeight: "600",
-    fontFamily: "Inter_600SemiBold",
+  emptyPreviewText: {
+    fontSize: 14,
+    fontFamily: "Inter_400Regular",
   },
   hexDivider: {
     height: 1,
@@ -378,5 +451,20 @@ const styles = StyleSheet.create({
     height: 32,
     borderRadius: 8,
     borderWidth: 2,
+  },
+  deleteBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    paddingVertical: 14,
+    borderRadius: 14,
+    borderWidth: 1,
+    marginTop: 12,
+  },
+  deleteText: {
+    fontSize: 15,
+    fontWeight: "600",
+    fontFamily: "Inter_600SemiBold",
   },
 });

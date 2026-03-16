@@ -1,22 +1,24 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Simply Plural API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: members
+    description: System member operations
+  - name: fronters
+    description: Fronting session operations
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +26,196 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /members:
+    get:
+      operationId: getMembers
+      tags: [members]
+      summary: Get all members
+      responses:
+        "200":
+          description: List of members
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Member"
+    post:
+      operationId: createMember
+      tags: [members]
+      summary: Create a new member
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMemberInput"
+      responses:
+        "201":
+          description: Member created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+
+  /members/{id}:
+    get:
+      operationId: getMember
+      tags: [members]
+      summary: Get a member by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Member found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+        "404":
+          description: Member not found
+    put:
+      operationId: updateMember
+      tags: [members]
+      summary: Update a member
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateMemberInput"
+      responses:
+        "200":
+          description: Member updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+    delete:
+      operationId: deleteMember
+      tags: [members]
+      summary: Delete a member
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Member deleted
+
+  /fronters:
+    get:
+      operationId: getFronters
+      tags: [fronters]
+      summary: Get current fronters
+      responses:
+        "200":
+          description: List of current fronters
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FrontSession"
+    post:
+      operationId: startFronting
+      tags: [fronters]
+      summary: Start a fronting session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StartFrontingInput"
+      responses:
+        "201":
+          description: Front session started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FrontSession"
+
+  /fronters/{id}:
+    delete:
+      operationId: stopFronting
+      tags: [fronters]
+      summary: Stop a fronting session
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Front session ended
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FrontSession"
+
+  /fronters/{id}/status:
+    patch:
+      operationId: updateFrontStatus
+      tags: [fronters]
+      summary: Update custom status for a front session
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateFrontStatusInput"
+      responses:
+        "200":
+          description: Status updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FrontSession"
+
+  /front-history:
+    get:
+      operationId: getFrontHistory
+      tags: [fronters]
+      summary: Get front history within a date range
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+        - name: endDate
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Front history sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FrontSession"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +226,109 @@ components:
       required:
         - status
 
+    Member:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        pronouns:
+          type: string
+        description:
+          type: string
+        color:
+          type: string
+        avatarUrl:
+          type: string
+        isFronting:
+          type: boolean
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - name
+        - color
+        - isFronting
+        - createdAt
+        - updatedAt
+
+    CreateMemberInput:
+      type: object
+      properties:
+        name:
+          type: string
+        pronouns:
+          type: string
+        description:
+          type: string
+        color:
+          type: string
+        avatarUrl:
+          type: string
+      required:
+        - name
+        - color
+
+    UpdateMemberInput:
+      type: object
+      properties:
+        name:
+          type: string
+        pronouns:
+          type: string
+        description:
+          type: string
+        color:
+          type: string
+        avatarUrl:
+          type: string
+
+    FrontSession:
+      type: object
+      properties:
+        id:
+          type: string
+        memberId:
+          type: string
+        memberName:
+          type: string
+        memberColor:
+          type: string
+        memberAvatarUrl:
+          type: string
+        customStatus:
+          type: string
+        startTime:
+          type: string
+        endTime:
+          type: string
+        isActive:
+          type: boolean
+      required:
+        - id
+        - memberId
+        - memberName
+        - memberColor
+        - startTime
+        - isActive
+
+    StartFrontingInput:
+      type: object
+      properties:
+        memberId:
+          type: string
+        customStatus:
+          type: string
+      required:
+        - memberId
+
+    UpdateFrontStatusInput:
+      type: object
+      properties:
+        customStatus:
+          type: string
+      required:
+        - customStatus

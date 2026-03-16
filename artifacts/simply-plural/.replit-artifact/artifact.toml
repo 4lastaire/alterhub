@@ -1,0 +1,27 @@
+kind = "mobile"
+previewPath = "/"
+title = "Simply Plural"
+version = "1.0.0"
+id = "artifacts/simply-plural"
+router = "expo-domain"
+
+[[integratedSkills]]
+name = "expo"
+version = "1.0.0"
+
+[[services]]
+ensurePreviewReachable = "/status"
+localPort = 23458
+name = "expo"
+paths = ["/"]
+
+[services.development]
+run = "pnpm --filter @workspace/simply-plural run dev"
+
+[services.env]
+PORT = "23458"
+BASE_PATH = "/"
+
+[services.production]
+build = ["pnpm", "--filter", "@workspace/simply-plural", "run", "build"]
+run = ["pnpm", "--filter", "@workspace/simply-plural", "run", "serve"]

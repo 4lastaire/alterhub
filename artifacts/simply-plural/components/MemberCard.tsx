@@ -1,7 +1,6 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import Colors from "@/constants/colors";
 import { MemberAvatar } from "./MemberAvatar";
@@ -14,16 +13,7 @@ type Props = {
 };
 
 export function MemberCard({ member, onPress, onToggleFront }: Props) {
-  const scale = useSharedValue(1);
-
-  const animStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
-
   const handleToggle = async () => {
-    scale.value = withSpring(0.95, { damping: 10 }, () => {
-      scale.value = withSpring(1, { damping: 10 });
-    });
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onToggleFront();
   };
@@ -31,64 +21,63 @@ export function MemberCard({ member, onPress, onToggleFront }: Props) {
   const C = Colors.dark;
 
   return (
-    <Animated.View style={animStyle}>
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.card,
+        {
+          backgroundColor: C.surface,
+          borderColor: member.isFronting ? member.color + "60" : C.border,
+          opacity: pressed ? 0.85 : 1,
+        },
+      ]}
+    >
+      <View style={[styles.colorBar, { backgroundColor: member.color }]} />
+
+      <MemberAvatar
+        name={member.name}
+        color={member.color}
+        avatarUrl={member.avatarUrl}
+        size={52}
+        isFronting={member.isFronting}
+      />
+
+      <View style={styles.info}>
+        <Text style={[styles.name, { color: C.text }]} numberOfLines={1}>
+          {member.name}
+        </Text>
+        {member.pronouns ? (
+          <Text style={[styles.pronouns, { color: C.textSecondary }]} numberOfLines={1}>
+            {member.pronouns}
+          </Text>
+        ) : null}
+      </View>
+
+      {member.isFronting ? (
+        <View style={[styles.frontingBadge, { backgroundColor: C.success + "22", borderColor: C.success + "44" }]}>
+          <View style={[styles.frontDot, { backgroundColor: C.success }]} />
+          <Text style={[styles.frontingText, { color: C.success }]}>Fronting</Text>
+        </View>
+      ) : null}
+
       <Pressable
-        onPress={onPress}
+        onPress={handleToggle}
         style={({ pressed }) => [
-          styles.card,
+          styles.toggleBtn,
           {
-            backgroundColor: C.surface,
-            borderColor: member.isFronting ? member.color + "60" : C.border,
-            opacity: pressed ? 0.85 : 1,
+            backgroundColor: member.isFronting ? member.color + "22" : C.surfaceElevated,
+            borderColor: member.isFronting ? member.color : C.border,
+            opacity: pressed ? 0.7 : 1,
           },
         ]}
       >
-        <View style={[styles.colorBar, { backgroundColor: member.color }]} />
-
-        <MemberAvatar
-          name={member.name}
-          color={member.color}
-          avatarUrl={member.avatarUrl}
-          size={52}
-          isFronting={member.isFronting}
+        <Ionicons
+          name={member.isFronting ? "arrow-down" : "add"}
+          size={18}
+          color={member.isFronting ? member.color : C.textSecondary}
         />
-
-        <View style={styles.info}>
-          <Text style={[styles.name, { color: C.text }]} numberOfLines={1}>
-            {member.name}
-          </Text>
-          {member.pronouns ? (
-            <Text style={[styles.pronouns, { color: C.textSecondary }]} numberOfLines={1}>
-              {member.pronouns}
-            </Text>
-          ) : null}
-        </View>
-
-        {member.isFronting ? (
-          <View style={[styles.frontingBadge, { backgroundColor: C.success + "22", borderColor: C.success + "44" }]}>
-            <View style={[styles.frontDot, { backgroundColor: C.success }]} />
-            <Text style={[styles.frontingText, { color: C.success }]}>Fronting</Text>
-          </View>
-        ) : null}
-
-        <Pressable
-          onPress={handleToggle}
-          style={[
-            styles.toggleBtn,
-            {
-              backgroundColor: member.isFronting ? member.color + "22" : C.surfaceElevated,
-              borderColor: member.isFronting ? member.color : C.border,
-            },
-          ]}
-        >
-          <Ionicons
-            name={member.isFronting ? "arrow-down" : "add"}
-            size={18}
-            color={member.isFronting ? member.color : C.textSecondary}
-          />
-        </Pressable>
       </Pressable>
-    </Animated.View>
+    </Pressable>
   );
 }
 

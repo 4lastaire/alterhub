@@ -2,7 +2,6 @@ import React, { useMemo, useState } from "react";
 import {
   Alert,
   Modal,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -10,11 +9,11 @@ import {
   TextInput,
   View,
 } from "react-native";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import Colors from "@/constants/colors";
 import { MemberAvatar } from "./MemberAvatar";
+import { TimePickerField } from "./TimePickerField";
 import type { FrontSession } from "@/context/SystemContext";
 import { formatTime } from "@/utils/time";
 import { getApiUrl } from "@/utils/api";
@@ -80,7 +79,6 @@ export function HistoryTimeline({ sessions, startDate, endDate, onSessionUpdated
             <Text style={[styles.dateLabel, { color: C.textSecondary }]}>{day.dateLabel}</Text>
             <View style={[styles.dateLine, { backgroundColor: C.border }]} />
           </View>
-
           <View style={styles.sessionContainer}>
             {day.sessions.map((s) => (
               <SessionRow
@@ -96,187 +94,6 @@ export function HistoryTimeline({ sessions, startDate, endDate, onSessionUpdated
     </ScrollView>
   );
 }
-
-function TimePickerField({
-  label,
-  value,
-  onChange,
-  hint,
-}: {
-  label: string;
-  value: Date | null;
-  onChange: (d: Date | null) => void;
-  hint?: string;
-}) {
-  const C = Colors.dark;
-  const [showPicker, setShowPicker] = useState(false);
-
-  const displayStr = value
-    ? value.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-    : "Not set";
-
-  const pickerValue = value ?? new Date();
-
-  const handlePress = () => setShowPicker(true);
-
-  const handleClear = () => onChange(null);
-
-  if (Platform.OS === "android") {
-    return (
-      <View style={tfStyles.row}>
-        <View style={tfStyles.labelCol}>
-          <Text style={[tfStyles.label, { color: C.textSecondary }]}>{label}</Text>
-          {hint ? <Text style={[tfStyles.hint, { color: C.textTertiary }]}>{hint}</Text> : null}
-        </View>
-        <View style={tfStyles.valueRow}>
-          <Pressable
-            onPress={handlePress}
-            style={[tfStyles.valueBtn, { backgroundColor: C.surfaceElevated, borderColor: C.border }]}
-          >
-            <Ionicons name="time-outline" size={14} color={C.tint} />
-            <Text style={[tfStyles.valueText, { color: value ? C.text : C.textTertiary }]}>{displayStr}</Text>
-          </Pressable>
-          {value ? (
-            <Pressable onPress={handleClear} style={tfStyles.clearBtn}>
-              <Ionicons name="close-circle" size={18} color={C.textTertiary} />
-            </Pressable>
-          ) : null}
-        </View>
-        {showPicker && (
-          <DateTimePicker
-            value={pickerValue}
-            mode="time"
-            is24Hour={false}
-            display="clock"
-            onChange={(event, date) => {
-              setShowPicker(false);
-              if (event.type === "set" && date) onChange(date);
-            }}
-          />
-        )}
-      </View>
-    );
-  }
-
-  return (
-    <View style={tfStyles.row}>
-      <View style={tfStyles.labelCol}>
-        <Text style={[tfStyles.label, { color: C.textSecondary }]}>{label}</Text>
-        {hint ? <Text style={[tfStyles.hint, { color: C.textTertiary }]}>{hint}</Text> : null}
-      </View>
-      <View style={tfStyles.valueRow}>
-        <Pressable
-          onPress={handlePress}
-          style={[tfStyles.valueBtn, { backgroundColor: C.surfaceElevated, borderColor: C.border }]}
-        >
-          <Ionicons name="time-outline" size={14} color={C.tint} />
-          <Text style={[tfStyles.valueText, { color: value ? C.text : C.textTertiary }]}>{displayStr}</Text>
-        </Pressable>
-        {value ? (
-          <Pressable onPress={handleClear} style={tfStyles.clearBtn}>
-            <Ionicons name="close-circle" size={18} color={C.textTertiary} />
-          </Pressable>
-        ) : null}
-      </View>
-      {showPicker && (
-        <Modal transparent animationType="fade" onRequestClose={() => setShowPicker(false)}>
-          <Pressable style={tfStyles.iosBackdrop} onPress={() => setShowPicker(false)} />
-          <View style={[tfStyles.iosSheet, { backgroundColor: C.surfaceElevated }]}>
-            <Text style={[tfStyles.iosTitle, { color: C.text }]}>{label}</Text>
-            <DateTimePicker
-              value={pickerValue}
-              mode="time"
-              display="spinner"
-              themeVariant="dark"
-              textColor={C.text}
-              onChange={(_event, date) => {
-                if (date) onChange(date);
-              }}
-              style={{ width: "100%" }}
-            />
-            <Pressable
-              onPress={() => setShowPicker(false)}
-              style={[tfStyles.iosDone, { backgroundColor: C.tint }]}
-            >
-              <Text style={tfStyles.iosDoneText}>Done</Text>
-            </Pressable>
-          </View>
-        </Modal>
-      )}
-    </View>
-  );
-}
-
-const tfStyles = StyleSheet.create({
-  row: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    gap: 6,
-  },
-  labelCol: {
-    gap: 2,
-  },
-  label: {
-    fontSize: 13,
-    fontFamily: "Inter_500Medium",
-  },
-  hint: {
-    fontSize: 11,
-    fontFamily: "Inter_400Regular",
-  },
-  valueRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  valueBtn: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 10,
-    borderWidth: 1,
-  },
-  valueText: {
-    fontSize: 15,
-    fontFamily: "Inter_400Regular",
-  },
-  clearBtn: {
-    padding: 2,
-  },
-  iosBackdrop: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-  },
-  iosSheet: {
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-    paddingBottom: 36,
-    alignItems: "center",
-    gap: 12,
-  },
-  iosTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    fontFamily: "Inter_600SemiBold",
-    alignSelf: "flex-start",
-  },
-  iosDone: {
-    width: "100%",
-    borderRadius: 14,
-    paddingVertical: 14,
-    alignItems: "center",
-  },
-  iosDoneText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-    fontFamily: "Inter_600SemiBold",
-  },
-});
 
 function SessionRow({
   session,
@@ -405,7 +222,8 @@ function SessionRow({
             <TimePickerField
               label="Start time"
               value={startTime}
-              onChange={(d) => d && setStartTime(d)}
+              onChange={(d) => { if (d) setStartTime(d); }}
+              clearable={false}
             />
             <View style={[styles.inlineDivider, { backgroundColor: C.border }]} />
             <TimePickerField
@@ -413,12 +231,11 @@ function SessionRow({
               value={endTime}
               onChange={setEndTime}
               hint={session.isActive ? "Leave blank to keep this session ongoing" : undefined}
+              clearable
             />
             <View style={[styles.inlineDivider, { backgroundColor: C.border }]} />
             <View style={styles.statusRow}>
-              <View style={styles.statusLabelCol}>
-                <Text style={[styles.statusLabel, { color: C.textSecondary }]}>Status</Text>
-              </View>
+              <Text style={[styles.statusLabel, { color: C.textSecondary }]}>Status</Text>
               <TextInput
                 value={customStatus}
                 onChangeText={setCustomStatus}
@@ -466,7 +283,6 @@ const styles = StyleSheet.create({
   fieldGroup: { borderRadius: 14, borderWidth: 1, overflow: "hidden" },
   inlineDivider: { height: 1, marginHorizontal: 16 },
   statusRow: { paddingHorizontal: 16, paddingVertical: 12, gap: 4 },
-  statusLabelCol: {},
   statusLabel: { fontSize: 13, fontFamily: "Inter_500Medium" },
   statusInput: { fontSize: 15, fontFamily: "Inter_400Regular", paddingVertical: 4 },
   saveBtn: { borderRadius: 14, paddingVertical: 15, alignItems: "center" },

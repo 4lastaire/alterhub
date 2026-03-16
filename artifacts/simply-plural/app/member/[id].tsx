@@ -156,6 +156,37 @@ export default function MemberDetailScreen() {
         <Text style={[styles.sectionLabel, { color: C.textSecondary }]}>COLOR</Text>
         <View style={[styles.colorSection, { backgroundColor: C.surface, borderColor: C.border }]}>
           <ColorPicker selected={color} onSelect={setColor} />
+          <View style={[styles.hexDivider, { backgroundColor: C.border }]} />
+          <View style={styles.hexRow}>
+            <Text style={[styles.hexLabel, { color: C.textSecondary }]}>Custom Hex</Text>
+            <View style={[styles.hexInputContainer, { borderColor: C.border }]}>
+              <Text style={[styles.hexHash, { color: C.textTertiary }]}>#</Text>
+              <TextInput
+                value={color.startsWith("#") ? color.slice(1) : color}
+                onChangeText={(val) => {
+                  const hex = val.toUpperCase();
+                  if (hex === "" || /^[0-9A-F]{0,6}$/.test(hex)) {
+                    setColor(hex.length === 6 ? "#" + hex : hex);
+                  }
+                }}
+                placeholder="4ECDC4"
+                placeholderTextColor={C.textTertiary}
+                style={[styles.hexInput, { color: C.text }]}
+                maxLength={6}
+                autoCapitalize="characters"
+              />
+            </View>
+            <View
+              style={[
+                styles.hexPreview,
+                {
+                  backgroundColor:
+                    /^#[0-9A-Fa-f]{6}$/.test(color) ? color : C.textTertiary,
+                  borderColor: /^#[0-9A-Fa-f]{6}$/.test(color) ? color : C.border,
+                },
+              ]}
+            />
+          </View>
         </View>
 
         <Text style={[styles.sectionLabel, { color: C.textSecondary }]}>AVATAR URL</Text>
@@ -305,5 +336,47 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "600",
     fontFamily: "Inter_600SemiBold",
+  },
+  hexDivider: {
+    height: 1,
+    marginHorizontal: 14,
+    marginVertical: 12,
+  },
+  hexRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    gap: 10,
+  },
+  hexLabel: {
+    fontSize: 12,
+    fontFamily: "Inter_500Medium",
+    width: 70,
+  },
+  hexInputContainer: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+  },
+  hexHash: {
+    fontSize: 15,
+    fontFamily: "Inter_600SemiBold",
+    marginRight: 2,
+  },
+  hexInput: {
+    flex: 1,
+    fontSize: 15,
+    fontFamily: "Inter_500Medium",
+  },
+  hexPreview: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    borderWidth: 2,
   },
 });

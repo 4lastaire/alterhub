@@ -1,14 +1,28 @@
-import React, { useMemo } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useMemo, useState } from "react";
+import {
+  Alert,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import Colors from "@/constants/colors";
 import { MemberAvatar } from "./MemberAvatar";
 import type { FrontSession } from "@/context/SystemContext";
 import { formatTime } from "@/utils/time";
+import { getApiUrl } from "@/utils/api";
 
 type Props = {
   sessions: FrontSession[];
   startDate: string;
   endDate: string;
+  onSessionUpdated: (session: FrontSession) => void;
+  onSessionDeleted: (sessionId: string) => void;
 };
 
 type DayGroup = {
@@ -17,7 +31,7 @@ type DayGroup = {
   sessions: FrontSession[];
 };
 
-export function HistoryTimeline({ sessions, startDate, endDate }: Props) {
+export function HistoryTimeline({ sessions, startDate, endDate, onSessionUpdated, onSessionDeleted }: Props) {
   const C = Colors.dark;
 
   const grouped = useMemo<DayGroup[]>(() => {
@@ -49,13 +63,14 @@ export function HistoryTimeline({ sessions, startDate, endDate }: Props) {
   if (grouped.length === 0) {
     return (
       <View style={styles.empty}>
+        <Ionicons name="time-outline" size={40} color={C.textTertiary} />
         <Text style={[styles.emptyText, { color: C.textSecondary }]}>No front history in this range</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={styles.container} contentInsetAdjustmentBehavior="automatic">
       {grouped.map((day) => (
         <View key={day.dateStr} style={styles.dayGroup}>
           <View style={styles.dayHeader}>
@@ -64,9 +79,14 @@ export function HistoryTimeline({ sessions, startDate, endDate }: Props) {
             <View style={[styles.dateLine, { backgroundColor: C.border }]} />
           </View>
 
-          <View style={styles.barContainer}>
+          <View style={styles.sessionContainer}>
             {day.sessions.map((s) => (
-              <SessionBar key={s.id} session={s} />
+              <SessionRow
+                key={s.id}
+                session={s}
+                onSessionUpdated={onSessionUpdated}
+                onSessionDeleted={onSessionDeleted}
+              />
             ))}
           </View>
         </View>
@@ -75,57 +95,200 @@ export function HistoryTimeline({ sessions, startDate, endDate }: Props) {
   );
 }
 
-function SessionBar({ session }: { session: FrontSession }) {
+function toTimeStr(iso: string): string {
+  const d = new Date(iso);
+  const h = d.getHours().toString().padStart(2, "0");
+  const m = d.getMinutes().toString().padStart(2, "0");
+  return `${h}:${m}`;
+}
+
+function applyTimeToDate(dateIso: string, timeStr: string): string {
+  const base = new Date(dateIso);
+  const [h, m] = timeStr.split(":").map(Number);
+  if (isNaN(h) || isNaN(m)) return dateIso;
+  base.setHours(h, m, 0, 0);
+  return base.toISOString();
+}
+
+function SessionRow({
+  session,
+  onSessionUpdated,
+  onSessionDeleted,
+}: {
+  session: FrontSession;
+  onSessionUpdated: (s: FrontSession) => void;
+  onSessionDeleted: (id: string) => void;
+}) {
   const C = Colors.dark;
-  const start = new Date(session.startTime);
-  const end = session.endTime ? new Date(session.endTime) : new Date();
-  const totalMinutesInDay = 24 * 60;
+  const [editing, setEditing] = useState(false);
+  const [customStatus, setCustomStatus] = useState(session.customStatus || "");
+  const [startTime, setStartTime] = useState(toTimeStr(session.startTime));
+  const [endTime, setEndTime] = useState(session.endTime ? toTimeStr(session.endTime) : "");
+  const [saving, setSaving] = useState(false);
 
-  const startMinutes = start.getHours() * 60 + start.getMinutes();
-  const endMinutes = end.getHours() * 60 + end.getMinutes();
-  const durationMinutes = endMinutes - startMinutes;
-  const heightPercent = Math.max((durationMinutes / totalMinutesInDay) * 100, 2);
+  const handleOpen = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setCustomStatus(session.customStatus || "");
+    setStartTime(toTimeStr(session.startTime));
+    setEndTime(session.endTime ? toTimeStr(session.endTime) : "");
+    setEditing(true);
+  };
 
-  const durationLabel = formatTime(session.startTime);
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const newStartTime = applyTimeToDate(session.startTime, startTime);
+      const newEndTime = endTime ? applyTimeToDate(session.endTime ?? session.startTime, endTime) : null;
+
+      const res = await fetch(`${getApiUrl()}/api/front-history/${session.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customStatus: customStatus || null,
+          startTime: newStartTime,
+          endTime: newEndTime,
+        }),
+      });
+      const updated = await res.json();
+      onSessionUpdated(updated);
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setEditing(false);
+    } catch (e) {
+      Alert.alert("Error", "Failed to save changes.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = () => {
+    Alert.alert(
+      "Delete Entry",
+      "Remove this front history entry?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            await fetch(`${getApiUrl()}/api/front-history/${session.id}`, { method: "DELETE" });
+            await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+            onSessionDeleted(session.id);
+            setEditing(false);
+          },
+        },
+      ]
+    );
+  };
 
   return (
-    <View style={styles.sessionRow}>
-      <MemberAvatar
-        name={session.memberName}
-        color={session.memberColor}
-        avatarUrl={session.memberAvatarUrl}
-        size={36}
-        isFronting={session.isActive}
-      />
+    <>
+      <Pressable
+        onPress={handleOpen}
+        style={({ pressed }) => [
+          styles.sessionRow,
+          { backgroundColor: C.surface, opacity: pressed ? 0.8 : 1 },
+        ]}
+      >
+        <MemberAvatar
+          name={session.memberName}
+          color={session.memberColor}
+          avatarUrl={session.memberAvatarUrl}
+          size={38}
+          isFronting={session.isActive}
+        />
 
-      <View style={styles.barColumn}>
-        <View
-          style={[
-            styles.bar,
-            {
-              backgroundColor: session.memberColor,
-              height: Math.max(durationMinutes / 2, 40),
-              opacity: session.isActive ? 1 : 0.75,
-            },
-          ]}
-        >
-          {session.isActive && (
-            <View style={[styles.activeIndicator, { backgroundColor: "#fff" }]} />
-          )}
+        <View style={styles.sessionInfo}>
+          <Text style={[styles.sessionName, { color: C.text }]}>{session.memberName}</Text>
+          <Text style={[styles.sessionTime, { color: C.textSecondary }]}>
+            {formatTime(session.startTime)}
+            {session.endTime ? ` → ${formatTime(session.endTime)}` : " → now"}
+          </Text>
+          {session.customStatus ? (
+            <Text style={[styles.sessionStatus, { color: C.textTertiary }]}>{session.customStatus}</Text>
+          ) : null}
         </View>
-        <Text style={[styles.timeLabel, { color: C.textTertiary }]}>{durationLabel}</Text>
-      </View>
 
-      <View style={styles.sessionInfo}>
-        <Text style={[styles.sessionName, { color: C.text }]}>{session.memberName}</Text>
-        <Text style={[styles.sessionTime, { color: C.textSecondary }]}>
-          {formatTime(session.startTime)}{session.endTime ? ` → ${formatTime(session.endTime)}` : " → now"}
-        </Text>
-        {session.customStatus ? (
-          <Text style={[styles.sessionStatus, { color: C.textTertiary }]}>{session.customStatus}</Text>
-        ) : null}
-      </View>
-    </View>
+        <Ionicons name="pencil" size={14} color={C.textTertiary} />
+      </Pressable>
+
+      <Modal visible={editing} transparent animationType="slide" onRequestClose={() => setEditing(false)}>
+        <Pressable style={styles.backdrop} onPress={() => setEditing(false)} />
+        <View style={[styles.sheet, { backgroundColor: C.surfaceElevated }]}>
+          <View style={styles.sheetHandle} />
+
+          <View style={styles.sheetHeader}>
+            <View style={styles.sheetHeaderLeft}>
+              <MemberAvatar
+                name={session.memberName}
+                color={session.memberColor}
+                avatarUrl={session.memberAvatarUrl}
+                size={32}
+                isFronting={session.isActive}
+              />
+              <Text style={[styles.sheetTitle, { color: C.text }]}>{session.memberName}</Text>
+            </View>
+            <Pressable onPress={handleDelete}>
+              <Ionicons name="trash-outline" size={18} color={C.destructive} />
+            </Pressable>
+          </View>
+
+          <View style={[styles.fieldGroup, { backgroundColor: C.surface, borderColor: C.border }]}>
+            <View style={styles.fieldRow}>
+              <Text style={[styles.fieldLabel, { color: C.textSecondary }]}>Start</Text>
+              <TextInput
+                value={startTime}
+                onChangeText={setStartTime}
+                style={[styles.fieldInput, { color: C.text }]}
+                placeholder="HH:MM"
+                placeholderTextColor={C.textTertiary}
+                keyboardType="numbers-and-punctuation"
+                maxLength={5}
+              />
+            </View>
+            {!session.isActive && (
+              <>
+                <View style={[styles.inlineDivider, { backgroundColor: C.border }]} />
+                <View style={styles.fieldRow}>
+                  <Text style={[styles.fieldLabel, { color: C.textSecondary }]}>End</Text>
+                  <TextInput
+                    value={endTime}
+                    onChangeText={setEndTime}
+                    style={[styles.fieldInput, { color: C.text }]}
+                    placeholder="HH:MM"
+                    placeholderTextColor={C.textTertiary}
+                    keyboardType="numbers-and-punctuation"
+                    maxLength={5}
+                  />
+                </View>
+              </>
+            )}
+            <View style={[styles.inlineDivider, { backgroundColor: C.border }]} />
+            <View style={styles.fieldRow}>
+              <Text style={[styles.fieldLabel, { color: C.textSecondary }]}>Status</Text>
+              <TextInput
+                value={customStatus}
+                onChangeText={setCustomStatus}
+                style={[styles.fieldInput, { color: C.text }]}
+                placeholder="Co-fronting, co-conscious..."
+                placeholderTextColor={C.textTertiary}
+              />
+            </View>
+          </View>
+
+          <Pressable
+            onPress={handleSave}
+            disabled={saving}
+            style={[styles.saveBtn, { backgroundColor: C.tint }]}
+          >
+            <Text style={styles.saveBtnText}>{saving ? "Saving…" : "Save Changes"}</Text>
+          </Pressable>
+
+          <Pressable onPress={() => setEditing(false)} style={styles.cancelBtn}>
+            <Text style={[styles.cancelBtnText, { color: C.textSecondary }]}>Cancel</Text>
+          </Pressable>
+        </View>
+      </Modal>
+    </>
   );
 }
 
@@ -139,6 +302,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingTop: 80,
+    gap: 12,
   },
   emptyText: {
     fontSize: 15,
@@ -151,7 +315,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
-    marginBottom: 12,
+    marginBottom: 10,
     gap: 10,
   },
   dateLine: {
@@ -165,38 +329,16 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
-  barContainer: {
+  sessionContainer: {
     paddingHorizontal: 16,
-    gap: 10,
+    gap: 8,
   },
   sessionRow: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
     gap: 12,
-    backgroundColor: "#161B22",
     borderRadius: 14,
     padding: 12,
-  },
-  barColumn: {
-    alignItems: "center",
-    gap: 4,
-  },
-  bar: {
-    width: 8,
-    borderRadius: 4,
-    alignItems: "center",
-    justifyContent: "flex-start",
-    paddingTop: 4,
-  },
-  activeIndicator: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    opacity: 0.8,
-  },
-  timeLabel: {
-    fontSize: 10,
-    fontFamily: "Inter_400Regular",
   },
   sessionInfo: {
     flex: 1,
@@ -215,5 +357,85 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontFamily: "Inter_400Regular",
     fontStyle: "italic",
+  },
+  // Edit modal
+  backdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  sheet: {
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    paddingBottom: 36,
+    gap: 16,
+  },
+  sheetHandle: {
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "#444",
+    alignSelf: "center",
+    marginBottom: 4,
+  },
+  sheetHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  sheetHeaderLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  sheetTitle: {
+    fontSize: 17,
+    fontWeight: "600",
+    fontFamily: "Inter_600SemiBold",
+  },
+  fieldGroup: {
+    borderRadius: 14,
+    borderWidth: 1,
+    overflow: "hidden",
+  },
+  fieldRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 13,
+    gap: 12,
+  },
+  fieldLabel: {
+    fontSize: 14,
+    fontFamily: "Inter_500Medium",
+    width: 52,
+  },
+  fieldInput: {
+    flex: 1,
+    fontSize: 15,
+    fontFamily: "Inter_400Regular",
+  },
+  inlineDivider: {
+    height: 1,
+    marginHorizontal: 16,
+  },
+  saveBtn: {
+    borderRadius: 14,
+    paddingVertical: 15,
+    alignItems: "center",
+  },
+  saveBtnText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+    fontFamily: "Inter_600SemiBold",
+  },
+  cancelBtn: {
+    alignItems: "center",
+    paddingVertical: 8,
+  },
+  cancelBtnText: {
+    fontSize: 15,
+    fontFamily: "Inter_400Regular",
   },
 });

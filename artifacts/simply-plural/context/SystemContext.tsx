@@ -40,6 +40,8 @@ type SystemContextType = {
   startFronting: (memberId: string, customStatus?: string) => Promise<void>;
   stopFronting: (sessionId: string) => Promise<void>;
   updateFrontStatus: (sessionId: string, customStatus: string) => Promise<void>;
+  updateHistorySession: (session: FrontSession) => void;
+  deleteHistorySession: (sessionId: string) => void;
   historyRange: { start: string; end: string };
   setHistoryRange: (range: { start: string; end: string }) => void;
 };
@@ -172,6 +174,14 @@ export function SystemProvider({ children }: { children: React.ReactNode }) {
     setFronters((prev) => prev.map((s) => (s.id === sessionId ? session : s)));
   }, []);
 
+  const updateHistorySession = useCallback((session: FrontSession) => {
+    setFrontHistory((prev) => prev.map((s) => (s.id === session.id ? session : s)));
+  }, []);
+
+  const deleteHistorySession = useCallback((sessionId: string) => {
+    setFrontHistory((prev) => prev.filter((s) => s.id !== sessionId));
+  }, []);
+
   useEffect(() => {
     fetchMembers();
     fetchFronters();
@@ -194,6 +204,8 @@ export function SystemProvider({ children }: { children: React.ReactNode }) {
         startFronting,
         stopFronting,
         updateFrontStatus,
+        updateHistorySession,
+        deleteHistorySession,
         historyRange,
         setHistoryRange,
       }}

@@ -74,10 +74,30 @@ router.patch("/fronters/:id/status", async (req, res) => {
   res.json(formatSession(session));
 });
 
+router.patch("/front-history/:id", async (req, res) => {
+  const { customStatus, startTime, endTime } = req.body;
+  const updates: Record<string, unknown> = {};
+  if (customStatus !== undefined) updates.customStatus = customStatus;
+  if (startTime !== undefined) updates.startTime = new Date(startTime);
+  if (endTime !== undefined) updates.endTime = endTime ? new Date(endTime) : null;
+
+  const [session] = await db
+    .update(frontSessionsTable)
+    .set(updates)
+    .where(eq(frontSessionsTable.id, req.params.id))
+    .returning();
+  if (!session) return res.status(404).json({ error: "Session not found" });
+  res.json(formatSession(session));
+});
+
+router.delete("/front-history/:id", async (req, res) => {
+  await db.delete(frontSessionsTable).where(eq(frontSessionsTable.id, req.params.id));
+  res.status(204).send();
+});
+
 router.get("/front-history", async (req, res) => {
   const { startDate, endDate } = req.query;
-  let query = db.select().from(frontSessionsTable);
-  
+
   const conditions = [];
   if (startDate) {
     conditions.push(gte(frontSessionsTable.startTime, new Date(startDate as string)));

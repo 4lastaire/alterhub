@@ -58,12 +58,9 @@ export function MemberCard({ member, onPress, onToggleFront }: Props) {
             {member.name}
           </Text>
           {member.pronouns ? (
-            <View style={styles.pronounsRow}>
-              <Ionicons name="pencil" size={11} color={member.color} />
-              <Text style={[styles.pronouns, { color: C.textSecondary }]} numberOfLines={1}>
-                {" "}{member.pronouns}
-              </Text>
-            </View>
+            <Text style={[styles.pronouns, { color: C.textSecondary }]} numberOfLines={1}>
+              {member.pronouns}
+            </Text>
           ) : null}
         </View>
 
@@ -124,10 +121,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "600",
     fontFamily: "Inter_600SemiBold",
-  },
-  pronounsRow: {
-    flexDirection: "row",
-    alignItems: "center",
   },
   pronouns: {
     fontSize: 12,

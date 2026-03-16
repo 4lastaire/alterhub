@@ -17,7 +17,7 @@ import { toDateString, formatDateShort } from "@/utils/time";
 export default function HistoryScreen() {
   const C = Colors.dark;
   const insets = useSafeAreaInsets();
-  const { frontHistory, historyLoading, fetchFrontHistory, historyRange, setHistoryRange } = useSystem();
+  const { frontHistory, historyLoading, fetchFrontHistory, historyRange, setHistoryRange, updateHistorySession, deleteHistorySession } = useSystem();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
 
   useEffect(() => {
@@ -92,6 +92,8 @@ export default function HistoryScreen() {
           sessions={frontHistory}
           startDate={historyRange.start}
           endDate={historyRange.end}
+          onSessionUpdated={updateHistorySession}
+          onSessionDeleted={deleteHistorySession}
         />
       )}
     </View>

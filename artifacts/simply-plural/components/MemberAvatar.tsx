@@ -11,85 +11,68 @@ type Props = {
 };
 
 export function MemberAvatar({ name, color, avatarUrl, size = 52, isFronting = false }: Props) {
-  const borderWidth = 2.5;
-  const borderRadius = size * 0.22;
-  const innerSize = isFronting ? size - borderWidth * 2 : size;
-  const innerRadius = isFronting ? borderRadius - borderWidth : borderRadius;
+  const gap = 3;
+  const outerRadius = size * 0.24;
+  const innerSize = size - gap * 2;
+  const innerRadius = outerRadius - gap;
   const iconSize = size * 0.45;
 
   return (
-    <View
-      style={[
-        styles.wrapper,
-        {
-          width: size,
-          height: size,
-          borderRadius,
-          borderColor: color,
-          borderWidth: isFronting ? borderWidth : 0,
-        },
-      ]}
-    >
+    <View style={{ width: size, height: size }}>
+      {isFronting && (
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: size,
+            height: size,
+            borderRadius: outerRadius,
+            backgroundColor: color,
+          }}
+        />
+      )}
+
       <View
         style={{
-          width: innerSize,
-          height: innerSize,
-          borderRadius: innerRadius,
+          position: "absolute",
+          top: isFronting ? gap : 0,
+          left: isFronting ? gap : 0,
+          width: isFronting ? innerSize : size,
+          height: isFronting ? innerSize : size,
+          borderRadius: isFronting ? innerRadius : outerRadius,
           overflow: "hidden",
           alignItems: "center",
           justifyContent: "center",
+          backgroundColor: color + "33",
         }}
       >
         {avatarUrl ? (
           <Image
             source={{ uri: avatarUrl }}
-            style={{ width: innerSize, height: innerSize }}
+            style={StyleSheet.absoluteFillObject}
             resizeMode="cover"
           />
         ) : (
-          <View
-            style={[
-              styles.placeholder,
-              {
-                width: innerSize,
-                height: innerSize,
-                backgroundColor: color + "33",
-              },
-            ]}
-          >
-            <Ionicons name="person" size={iconSize} color={color} />
-          </View>
+          <Ionicons name="person" size={iconSize} color={color} />
         )}
       </View>
 
       {isFronting && (
         <View
-          style={[
-            styles.dot,
-            { backgroundColor: "#56D364", right: -3, bottom: -3 },
-          ]}
+          style={{
+            position: "absolute",
+            right: -3,
+            bottom: -3,
+            width: 12,
+            height: 12,
+            borderRadius: 6,
+            backgroundColor: "#56D364",
+            borderWidth: 2,
+            borderColor: "#0D1117",
+          }}
         />
       )}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrapper: {
-    alignItems: "center",
-    justifyContent: "center",
-    position: "relative",
-  },
-  placeholder: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  dot: {
-    position: "absolute",
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: "#0D1117",
-  },
-});

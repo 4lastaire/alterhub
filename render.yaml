@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: alterhub-api
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: pnpm install --frozen-lockfile=false && pnpm -C lib/db push && pnpm -C artifacts/api-server build
+    startCommand: node artifacts/api-server/dist/index.cjs
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: DATABASE_URL
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false

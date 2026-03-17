@@ -109,9 +109,14 @@ export default function MemberDetailScreen() {
           text: "Delete",
           style: "destructive",
           onPress: async () => {
-            await deleteMember(id);
-            await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-            router.back();
+            try {
+              await deleteMember(id);
+              await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+              router.back();
+            } catch (e) {
+              console.error("delete member error", e);
+              Alert.alert("Error", "Failed to delete member. Please try again.");
+            }
           },
         },
       ]

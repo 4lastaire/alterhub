@@ -16,6 +16,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Colors from "@/constants/colors";
 import { MemberCard } from "@/components/MemberCard";
 import { useSystem } from "@/context/SystemContext";
+import { Alert } from "react-native";
 import type { Member } from "@/context/SystemContext";
 
 export default function MembersScreen() {
@@ -31,13 +32,18 @@ export default function MembersScreen() {
   }, [fetchMembers]);
 
   const handleToggleFront = useCallback(async (member: Member) => {
-    if (member.isFronting) {
-      const session = fronters.find((s) => s.memberId === member.id);
-      if (session) await stopFronting(session.id);
-    } else {
-      await startFronting(member.id);
+    try {
+      if (member.isFronting) {
+        const session = fronters.find((s) => s.memberId === member.id);
+        if (session) await stopFronting(session.id);
+      } else {
+        await startFronting(member.id);
+      }
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    } catch (e) {
+      console.error("toggle front error", e);
+      Alert.alert("Error", "Could not update fronting status. Please try again.");
     }
-    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
   }, [fronters, startFronting, stopFronting]);
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;

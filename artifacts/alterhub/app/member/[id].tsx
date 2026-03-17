@@ -38,6 +38,7 @@ export default function MemberDetailScreen() {
   const [description, setDescription] = useState(existing?.description || "");
   const [color, setColor] = useState(existing?.color || "#4ECDC4");
   const [avatarUrl, setAvatarUrl] = useState(existing?.avatarUrl || "");
+  const [folder, setFolder] = useState(existing?.folder || "");
   const [saving, setSaving] = useState(false);
   const [descTab, setDescTab] = useState<"edit" | "preview">("edit");
 
@@ -84,6 +85,7 @@ export default function MemberDetailScreen() {
         description: description.trim() || null,
         color,
         avatarUrl: avatarUrl.trim() || null,
+        folder: folder.trim() || null,
       };
       if (isNew) {
         await createMember(payload as any);
@@ -300,6 +302,20 @@ export default function MemberDetailScreen() {
               value={pronouns}
               onChangeText={setPronouns}
               placeholder="he/him, she/her, they/them..."
+              placeholderTextColor={C.textTertiary}
+              style={[styles.input, { color: C.text }]}
+            />
+          </View>
+        </View>
+
+        <Text style={[styles.sectionLabel, { color: C.textSecondary }]}>FOLDER</Text>
+        <View style={[styles.section, { backgroundColor: C.surface, borderColor: C.border }]}>
+          <View style={styles.fieldRow}>
+            <Text style={[styles.label, { color: C.textSecondary }]}>Folder</Text>
+            <TextInput
+              value={folder}
+              onChangeText={setFolder}
+              placeholder="e.g. Work, IRL, Online"
               placeholderTextColor={C.textTertiary}
               style={[styles.input, { color: C.text }]}
             />

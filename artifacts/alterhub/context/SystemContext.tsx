@@ -9,6 +9,7 @@ export type Member = {
   description?: string | null;
   color: string;
   avatarUrl?: string | null;
+  folder?: string | null;
   isFronting: boolean;
   createdAt: string;
   updatedAt: string;

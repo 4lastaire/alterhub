@@ -13,6 +13,7 @@ export interface Member {
   description?: string;
   color: string;
   avatarUrl?: string;
+  folder?: string;
   isFronting: boolean;
   createdAt: string;
   updatedAt: string;

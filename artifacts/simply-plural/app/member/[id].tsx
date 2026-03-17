@@ -37,6 +37,7 @@ export default function MemberDetailScreen() {
   const [color, setColor] = useState(existing?.color || "#4ECDC4");
   const [avatarUrl, setAvatarUrl] = useState(existing?.avatarUrl || "");
   const [saving, setSaving] = useState(false);
+  const [descTab, setDescTab] = useState<"edit" | "preview">("edit");
 
   useEffect(() => {
     if (existing) {
@@ -330,21 +331,49 @@ export default function MemberDetailScreen() {
           </View>
         </View>
 
-        <Text style={[styles.sectionLabel, { color: C.textSecondary }]}>DESCRIPTION</Text>
-        <Text style={[styles.descHint, { color: C.textTertiary }]}>
-          Supports **bold**, *italic*, # headings, {">"} quotes, and more
-        </Text>
+        <View style={styles.descHeader}>
+          <View>
+            <Text style={[styles.sectionLabel, { color: C.textSecondary, marginBottom: 0 }]}>DESCRIPTION</Text>
+            <Text style={[styles.descHint, { color: C.textTertiary }]}>
+              **bold**, *italic*, # heading, {">"} quote
+            </Text>
+          </View>
+          <View style={[styles.toggleRow, { backgroundColor: C.surfaceElevated, borderColor: C.border }]}>
+            <Pressable
+              onPress={() => setDescTab("edit")}
+              style={[styles.toggleBtn, descTab === "edit" && { backgroundColor: C.tint }]}
+            >
+              <Text style={[styles.toggleText, { color: descTab === "edit" ? "#fff" : C.textSecondary }]}>Edit</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => setDescTab("preview")}
+              style={[styles.toggleBtn, descTab === "preview" && { backgroundColor: C.tint }]}
+            >
+              <Text style={[styles.toggleText, { color: descTab === "preview" ? "#fff" : C.textSecondary }]}>Preview</Text>
+            </Pressable>
+          </View>
+        </View>
         <View style={[styles.section, { backgroundColor: C.surface, borderColor: C.border }]}>
-          <TextInput
-            value={description}
-            onChangeText={setDescription}
-            placeholder="Write a description..."
-            placeholderTextColor={C.textTertiary}
-            style={[styles.descInput, { color: C.text }]}
-            multiline
-            numberOfLines={8}
-            textAlignVertical="top"
-          />
+          {descTab === "edit" ? (
+            <TextInput
+              value={description}
+              onChangeText={setDescription}
+              placeholder="Write a description..."
+              placeholderTextColor={C.textTertiary}
+              style={[styles.descInput, { color: C.text }]}
+              multiline
+              numberOfLines={8}
+              textAlignVertical="top"
+            />
+          ) : description.trim() ? (
+            <View style={styles.markdownWrapper}>
+              <Markdown style={markdownStyles as any}>{description}</Markdown>
+            </View>
+          ) : (
+            <View style={styles.emptyPreview}>
+              <Text style={[styles.emptyPreviewText, { color: C.textTertiary }]}>Nothing to preview yet</Text>
+            </View>
+          )}
         </View>
 
         {!isNew && (
@@ -639,5 +668,45 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "600",
     fontFamily: "Inter_600SemiBold",
+  },
+  descHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 6,
+    marginLeft: 4,
+    marginRight: 0,
+  },
+  toggleRow: {
+    flexDirection: "row",
+    borderRadius: 8,
+    borderWidth: 1,
+    overflow: "hidden",
+    padding: 2,
+    gap: 2,
+  },
+  toggleBtn: {
+    paddingHorizontal: 14,
+    paddingVertical: 5,
+    borderRadius: 6,
+  },
+  toggleText: {
+    fontSize: 12,
+    fontWeight: "600",
+    fontFamily: "Inter_600SemiBold",
+  },
+  markdownWrapper: {
+    padding: 16,
+    minHeight: 80,
+  },
+  emptyPreview: {
+    padding: 16,
+    minHeight: 80,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  emptyPreviewText: {
+    fontSize: 14,
+    fontFamily: "Inter_400Regular",
   },
 });

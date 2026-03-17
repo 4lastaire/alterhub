@@ -102,6 +102,31 @@ export default function MemberDetailScreen() {
   };
 
   const handleDelete = () => {
+    const performDelete = async () => {
+      try {
+        await deleteMember(id);
+        await fetchMembers();
+        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+        router.back();
+      } catch (e) {
+        console.error("delete member error", e);
+        Alert.alert("Error", "Failed to delete member. Please try again.");
+      }
+    };
+
+    if (Platform.OS === "web") {
+      // React Native Web's Alert doesn't support multi-button dialogs.
+      // Use the browser confirm so the handler actually runs.
+      // eslint-disable-next-line no-alert
+      const ok = window.confirm(
+        `Are you sure you want to delete ${name || "this member"}? This cannot be undone.`,
+      );
+      if (ok) {
+        void performDelete();
+      }
+      return;
+    }
+
     Alert.alert(
       "Delete Member",
       `Are you sure you want to delete ${name}? This cannot be undone.`,
@@ -110,20 +135,11 @@ export default function MemberDetailScreen() {
         {
           text: "Delete",
           style: "destructive",
-          onPress: async () => {
-            try {
-              await deleteMember(id);
-              // Ensure upstream state is fresh (especially in online/API mode)
-              await fetchMembers();
-              await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-              router.back();
-            } catch (e) {
-              console.error("delete member error", e);
-              Alert.alert("Error", "Failed to delete member. Please try again.");
-            }
+          onPress: () => {
+            void performDelete();
           },
         },
-      ]
+      ],
     );
   };
 

@@ -11,7 +11,10 @@ type Props = {
 };
 
 export function MemberAvatar({ name, color, avatarUrl, size = 52, isFronting = false }: Props) {
+  const borderWidth = 2.5;
   const borderRadius = size * 0.22;
+  const innerSize = isFronting ? size - borderWidth * 2 : size;
+  const innerRadius = isFronting ? borderRadius - borderWidth : borderRadius;
   const iconSize = size * 0.45;
 
   return (
@@ -23,33 +26,49 @@ export function MemberAvatar({ name, color, avatarUrl, size = 52, isFronting = f
           height: size,
           borderRadius,
           borderColor: color,
-          borderWidth: isFronting ? 2.5 : 0,
+          borderWidth: isFronting ? borderWidth : 0,
         },
       ]}
     >
-      {avatarUrl ? (
-        <Image
-          source={{ uri: avatarUrl }}
-          style={[styles.image, { width: size - (isFronting ? 5 : 0), height: size - (isFronting ? 5 : 0), borderRadius: borderRadius - 1 }]}
-          resizeMode="cover"
-        />
-      ) : (
+      <View
+        style={{
+          width: innerSize,
+          height: innerSize,
+          borderRadius: innerRadius,
+          overflow: "hidden",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {avatarUrl ? (
+          <Image
+            source={{ uri: avatarUrl }}
+            style={{ width: innerSize, height: innerSize }}
+            resizeMode="cover"
+          />
+        ) : (
+          <View
+            style={[
+              styles.placeholder,
+              {
+                width: innerSize,
+                height: innerSize,
+                backgroundColor: color + "33",
+              },
+            ]}
+          >
+            <Ionicons name="person" size={iconSize} color={color} />
+          </View>
+        )}
+      </View>
+
+      {isFronting && (
         <View
           style={[
-            styles.placeholder,
-            {
-              width: size - (isFronting ? 5 : 0),
-              height: size - (isFronting ? 5 : 0),
-              borderRadius: borderRadius - 1,
-              backgroundColor: color + "33",
-            },
+            styles.dot,
+            { backgroundColor: "#56D364", right: -3, bottom: -3 },
           ]}
-        >
-          <Ionicons name="person" size={iconSize} color={color} />
-        </View>
-      )}
-      {isFronting && (
-        <View style={[styles.dot, { backgroundColor: "#56D364", borderRadius: 6, width: 12, height: 12, right: -3, bottom: -3 }]} />
+        />
       )}
     </View>
   );
@@ -61,15 +80,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     position: "relative",
   },
-  image: {
-    backgroundColor: "#1E2530",
-  },
   placeholder: {
     alignItems: "center",
     justifyContent: "center",
   },
   dot: {
     position: "absolute",
+    width: 12,
+    height: 12,
+    borderRadius: 6,
     borderWidth: 2,
     borderColor: "#0D1117",
   },

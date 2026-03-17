@@ -26,7 +26,7 @@ export default function MemberDetailScreen() {
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
   const isNew = id === "new";
-  const { members, createMember, updateMember, deleteMember } = useSystem();
+  const { members, createMember, updateMember, deleteMember, fetchMembers } = useSystem();
 
   const existing = members.find((m) => m.id === id);
 
@@ -111,6 +111,8 @@ export default function MemberDetailScreen() {
           onPress: async () => {
             try {
               await deleteMember(id);
+              // Ensure upstream state is fresh (especially in online/API mode)
+              await fetchMembers();
               await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
               router.back();
             } catch (e) {

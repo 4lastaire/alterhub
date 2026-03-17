@@ -15,8 +15,10 @@
     <meta name="twitter:title" content="Mockup Canvas" />
     <meta name="twitter:description" content="UI prototyping sandbox with infinite canvas" />
 
+    <meta name="theme-color" content="#0b0f19" />
+
     <title>Mockup Canvas</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>">
+    <link rel="icon" href="%BASE_URL%pwa-icon.svg" type="image/svg+xml">
     <!-- Non-blocking font bundle: renders with fallback fonts immediately, swaps in when loaded -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,6 +28,14 @@
   </head>
   <body style="height: 100%; margin: 0">
     <div id="root" style="height: 100%"></div>
+    <script>
+      // GitHub Pages SPA redirect (paired with /404.html)
+      const redirect = sessionStorage.getItem("gh-pages:redirect");
+      if (redirect) {
+        sessionStorage.removeItem("gh-pages:redirect");
+        history.replaceState(null, "", redirect);
+      }
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

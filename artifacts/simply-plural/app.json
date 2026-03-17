@@ -29,8 +29,8 @@
       "shortName": "SimplyPlural",
       "description": "Track your plural system members and fronting history",
       "lang": "en",
-      "scope": "/",
-      "startUrl": "/",
+      "scope": "/alterhub/",
+      "startUrl": "/alterhub/",
       "display": "standalone",
       "orientation": "portrait"
     },
@@ -47,7 +47,8 @@
     ],
     "experiments": {
       "typedRoutes": true,
-      "reactCompiler": true
+      "reactCompiler": true,
+      "baseUrl": "/alterhub"
     }
   }
 }

@@ -20,8 +20,19 @@
       "backgroundColor": "#0D1117"
     },
     "web": {
+      "output": "static",
+      "bundler": "metro",
       "favicon": "./assets/images/icon.png",
-      "backgroundColor": "#0D1117"
+      "backgroundColor": "#0D1117",
+      "themeColor": "#4ECDC4",
+      "name": "Simply Plural",
+      "shortName": "SimplyPlural",
+      "description": "Track your plural system members and fronting history",
+      "lang": "en",
+      "scope": "/",
+      "startUrl": "/",
+      "display": "standalone",
+      "orientation": "portrait"
     },
     "plugins": [
       [

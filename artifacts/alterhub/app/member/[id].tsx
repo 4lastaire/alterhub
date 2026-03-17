@@ -24,7 +24,9 @@ import { useSystem } from "@/context/SystemContext";
 export default function MemberDetailScreen() {
   const C = Colors.dark;
   const insets = useSafeAreaInsets();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const params = useLocalSearchParams<{ id?: string | string[] }>();
+  const idParam = params.id;
+  const id = Array.isArray(idParam) ? idParam[0] : idParam ?? "new";
   const isNew = id === "new";
   const { members, createMember, updateMember, deleteMember, fetchMembers } = useSystem();
 

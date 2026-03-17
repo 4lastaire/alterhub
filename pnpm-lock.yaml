@@ -384,7 +384,7 @@ importers:
         specifier: 'catalog:'
         version: 3.25.76
 
-  artifacts/simply-plural:
+  artifacts/alterhub:
     dependencies:
       '@nkzw/create-context-hook':
         specifier: ^1.1.0

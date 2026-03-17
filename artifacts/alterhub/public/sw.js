@@ -1,11 +1,17 @@
-const CACHE_NAME = "simply-plural-v1";
+const CACHE_NAME = "alterhub-v1";
 const API_PATTERN = /\/api\//;
 
+function withBase(path) {
+  // registration.scope will be the deployed subpath (e.g. /alterhub/)
+  const scopePath = new URL(self.registration.scope).pathname.replace(/\/+$/, "");
+  return `${scopePath}${path}`;
+}
+
 const STATIC_ASSETS = [
-  "/",
-  "/manifest.json",
-  "/icons/icon-192.png",
-  "/icons/icon-512.png",
+  withBase("/"),
+  withBase("/manifest.json"),
+  withBase("/icons/icon-192.png"),
+  withBase("/icons/icon-512.png"),
 ];
 
 self.addEventListener("install", (event) => {
@@ -86,7 +92,11 @@ self.addEventListener("fetch", (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
           return response;
         })
-        .catch(() => caches.match(request).then((cached) => cached || caches.match("/")))
+        .catch(() =>
+          caches
+            .match(request)
+            .then((cached) => cached || caches.match(withBase("/"))),
+        )
     );
     return;
   }

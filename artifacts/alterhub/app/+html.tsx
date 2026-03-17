@@ -13,24 +13,24 @@ export default function Root({ children }: PropsWithChildren) {
         />
 
         {/* PWA */}
-        <link rel="manifest" href="/manifest.json" />
+        <link rel="manifest" href="./manifest.json" />
         <meta name="theme-color" content="#4ECDC4" />
         <meta name="mobile-web-app-capable" content="yes" />
 
         {/* Apple PWA */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="Simply Plural" />
-        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+        <meta name="apple-mobile-web-app-title" content="Alterhub" />
+        <link rel="apple-touch-icon" href="./icons/icon-192.png" />
 
         {/* App meta */}
-        <meta name="application-name" content="Simply Plural" />
-        <meta name="description" content="Track your plural system members and fronting history" />
+        <meta name="application-name" content="Alterhub" />
+        <meta name="description" content="Track your system members and fronting history" />
         <meta name="msapplication-TileColor" content="#0D1117" />
-        <meta name="msapplication-TileImage" content="/icons/icon-192.png" />
+        <meta name="msapplication-TileImage" content="./icons/icon-192.png" />
 
         {/* Favicon */}
-        <link rel="icon" type="image/png" href="/icons/icon-192.png" />
+        <link rel="icon" type="image/png" href="./icons/icon-192.png" />
 
         {/* Prevent layout jump */}
         <ScrollViewStyleReset />
@@ -54,7 +54,7 @@ export default function Root({ children }: PropsWithChildren) {
             __html: `
               if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js', { scope: '/' })
+                  navigator.serviceWorker.register(new URL('./sw.js', window.location.href), { scope: './' })
                     .then(function(reg) {
                       console.log('[SW] Registered:', reg.scope);
                     })

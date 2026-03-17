@@ -1,4 +1,4 @@
-name: Deploy Simply Plural to GitHub Pages
+name: Deploy Alterhub to GitHub Pages
 
 on:
   push:
@@ -36,7 +36,7 @@ jobs:
         run: pnpm install --frozen-lockfile=false
 
       - name: Build
-        run: pnpm -C artifacts/simply-plural exec expo export -p web
+        run: pnpm -C artifacts/alterhub exec expo export -p web
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
@@ -44,7 +44,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: artifacts/simply-plural/dist
+          path: artifacts/alterhub/dist
 
   deploy:
     needs: build

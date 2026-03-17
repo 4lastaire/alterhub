@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Simply Plural",
-    "slug": "simply-plural",
+    "name": "Alterhub",
+    "slug": "alterhub",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "simply-plural",
+    "scheme": "alterhub",
     "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
@@ -25,9 +25,9 @@
       "favicon": "./assets/images/icon.png",
       "backgroundColor": "#0D1117",
       "themeColor": "#4ECDC4",
-      "name": "Simply Plural",
-      "shortName": "SimplyPlural",
-      "description": "Track your plural system members and fronting history",
+      "name": "Alterhub",
+      "shortName": "Alterhub",
+      "description": "Track your system members and fronting history",
       "lang": "en",
       "scope": "/alterhub/",
       "startUrl": "/alterhub/",

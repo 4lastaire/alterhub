@@ -23,7 +23,7 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 artifacts-monorepo/
 ├── artifacts/              # Deployable applications
 │   ├── api-server/         # Express API server
-│   └── simply-plural/      # Expo React Native app (Simply Plural clone)
+│   └── alterhub/           # Expo React Native app (Alterhub)
 ├── lib/                    # Shared libraries
 │   ├── api-spec/           # OpenAPI spec + Orval codegen config
 │   ├── api-client-react/   # Generated React Query hooks
@@ -36,9 +36,9 @@ artifacts-monorepo/
 └── package.json
 ```
 
-## Simply Plural Mobile App
+## Alterhub Mobile App
 
-A clone of the Simply Plural app for tracking system members and fronting history.
+Alterhub app for tracking system members and fronting history.
 
 ### Features
 - **Members tab**: List all alters with colored borders, pronouns, front status

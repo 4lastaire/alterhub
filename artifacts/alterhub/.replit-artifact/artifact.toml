@@ -1,8 +1,8 @@
 kind = "mobile"
 previewPath = "/"
-title = "Simply Plural"
+title = "Alterhub"
 version = "1.0.0"
-id = "artifacts/simply-plural"
+id = "artifacts/alterhub"
 router = "expo-domain"
 
 [[integratedSkills]]
@@ -16,12 +16,12 @@ name = "expo"
 paths = ["/"]
 
 [services.development]
-run = "pnpm --filter @workspace/simply-plural run dev"
+run = "pnpm --filter @workspace/alterhub run dev"
 
 [services.env]
 PORT = "23458"
 BASE_PATH = "/"
 
 [services.production]
-build = ["pnpm", "--filter", "@workspace/simply-plural", "run", "build"]
-run = ["pnpm", "--filter", "@workspace/simply-plural", "run", "serve"]
+build = ["pnpm", "--filter", "@workspace/alterhub", "run", "build"]
+run = ["pnpm", "--filter", "@workspace/alterhub", "run", "serve"]

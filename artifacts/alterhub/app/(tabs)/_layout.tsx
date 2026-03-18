@@ -64,19 +64,7 @@ function ClassicTabLayout() {
             <View style={[StyleSheet.absoluteFill, { backgroundColor: C.surface }]} />
           ) : null,
       }}
-    >
-      <Tabs.Screen
-        name="groups"
-        options={{
-          title: "Groups",
-          tabBarIcon: ({ color }) =>
-            isIOS ? (
-              <SymbolView name="folder" tintColor={color} size={24} />
-            ) : (
-              <Ionicons name="folder-outline" size={22} color={color} />
-            ),
-        }}
-      />
+    />
       <Tabs.Screen
         name="index"
         options={{

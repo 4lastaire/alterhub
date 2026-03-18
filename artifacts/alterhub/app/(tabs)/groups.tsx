@@ -1,17 +1,23 @@
-import React, { useCallback, useState } from "react";
-import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import { Alert, FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import Colors from "@/constants/colors";
 import { useSystem } from "@/context/SystemContext";
+import { getApiUrl } from "@/utils/api";
 
 export default function GroupsScreen() {
     const C = Colors.dark;
     const { groups, fetchGroups } = useSystem();
     const [name, setName] = useState("");
 
+    // Load groups when the screen mounts
+    useEffect(() => {
+        void fetchGroups();
+    }, [fetchGroups]);
+
     const handleCreate = useCallback(async () => {
         if (!name.trim()) return;
         try {
-            const res = await fetch("/api/groups", {
+            const res = await fetch(`${getApiUrl()}/api/groups`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ name: name.trim() }),
@@ -53,7 +59,9 @@ export default function GroupsScreen() {
                 )}
                 ListEmptyComponent={
                     <View style={styles.empty}>
-                        <ActivityIndicator color={C.tint} />
+                        <Text style={{ color: C.textSecondary, fontFamily: "Inter_400Regular" }}>
+                            No groups yet. Create one above.
+                        </Text>
                     </View>
                 }
             />

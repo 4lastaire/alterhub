@@ -44,8 +44,25 @@ type SystemContextType = {
   fetchGroups: () => Promise<void>;
   fetchFronters: () => Promise<void>;
   fetchFrontHistory: (startDate?: string, endDate?: string) => Promise<void>;
-  createMember: (data: { name: string; pronouns?: string | null; description?: string | null; color: string; avatarUrl?: string | null }) => Promise<Member>;
-  updateMember: (id: string, data: { name?: string; pronouns?: string | null; description?: string | null; color?: string; avatarUrl?: string | null }) => Promise<Member>;
+  createMember: (data: {
+    name: string;
+    pronouns?: string | null;
+    description?: string | null;
+    color: string;
+    avatarUrl?: string | null;
+    groupIds?: string[];
+  }) => Promise<Member>;
+  updateMember: (
+    id: string,
+    data: {
+      name?: string;
+      pronouns?: string | null;
+      description?: string | null;
+      color?: string;
+      avatarUrl?: string | null;
+      groupIds?: string[];
+    },
+  ) => Promise<Member>;
   deleteMember: (id: string) => Promise<void>;
   startFronting: (memberId: string, customStatus?: string) => Promise<void>;
   stopFronting: (sessionId: string) => Promise<void>;
@@ -196,7 +213,14 @@ export function SystemProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const createMember = useCallback(async (data: { name: string; pronouns?: string | null; description?: string | null; color: string; avatarUrl?: string | null }) => {
+  const createMember = useCallback(async (data: {
+    name: string;
+    pronouns?: string | null;
+    description?: string | null;
+    color: string;
+    avatarUrl?: string | null;
+    groupIds?: string[];
+  }) => {
     if (isWebWithoutApi()) {
       const created: Member = {
         id: makeId(),
@@ -208,6 +232,7 @@ export function SystemProvider({ children }: { children: React.ReactNode }) {
         isFronting: false,
         createdAt: nowIso(),
         updatedAt: nowIso(),
+        groups: [],
       };
       setMembers((prev) => {
         const next = [...prev, created];
@@ -220,7 +245,7 @@ export function SystemProvider({ children }: { children: React.ReactNode }) {
     const res = await fetch(`${getApiUrl()}/api/members`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...data, groupIds }),
+      body: JSON.stringify(data),
     });
     if (!res.ok) {
       const text = await res.text().catch(() => "");
@@ -231,7 +256,17 @@ export function SystemProvider({ children }: { children: React.ReactNode }) {
     return member;
   }, []);
 
-  const updateMember = useCallback(async (id: string, data: { name?: string; pronouns?: string | null; description?: string | null; color?: string; avatarUrl?: string | null }) => {
+  const updateMember = useCallback(async (
+    id: string,
+    data: {
+      name?: string;
+      pronouns?: string | null;
+      description?: string | null;
+      color?: string;
+      avatarUrl?: string | null;
+      groupIds?: string[];
+    },
+  ) => {
     if (isWebWithoutApi()) {
       let updated!: Member;
       setMembers((prev) => {
@@ -253,7 +288,7 @@ export function SystemProvider({ children }: { children: React.ReactNode }) {
     const res = await fetch(`${getApiUrl()}/api/members/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...data, groupIds }),
+      body: JSON.stringify(data),
     });
     if (!res.ok) {
       const text = await res.text().catch(() => "");

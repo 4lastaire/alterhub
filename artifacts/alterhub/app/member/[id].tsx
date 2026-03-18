@@ -123,7 +123,7 @@ export default function MemberDetailScreen() {
       // Use the browser confirm so the handler actually runs.
       // eslint-disable-next-line no-alert
       const ok = window.confirm(
-        `Are you sure you want to delete ${name || "this member"}? This cannot be undone.`,
+          `Are you sure you want to delete ${name || "this member"}? This cannot be undone.`,
       );
       if (ok) {
         void performDelete();
@@ -132,18 +132,18 @@ export default function MemberDetailScreen() {
     }
 
     Alert.alert(
-      "Delete Member",
-      `Are you sure you want to delete ${name}? This cannot be undone.`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => {
-            void performDelete();
+        "Delete Member",
+        `Are you sure you want to delete ${name}? This cannot be undone.`,
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Delete",
+            style: "destructive",
+            onPress: () => {
+              void performDelete();
+            },
           },
-        },
-      ],
+        ],
     );
   };
 
@@ -167,329 +167,310 @@ export default function MemberDetailScreen() {
 
   if (mode === "view" && existing) {
     return (
-      <View style={[styles.container, { backgroundColor: C.background }]}>
-        <View style={[styles.navBar, { paddingTop: topPad + 8 }]}>
-          <Pressable onPress={() => router.back()} style={styles.navSide}>
-            <Ionicons name="chevron-back" size={22} color={C.tint} />
-            <Text style={[styles.navSideText, { color: C.tint }]}>Back</Text>
-          </Pressable>
-          <View style={styles.navCenter} />
-          <Pressable onPress={handleEdit} style={[styles.navSide, styles.navSideRight]}>
-            <Text style={[styles.navSideText, { color: C.tint }]}>Edit</Text>
-            <Ionicons name="create-outline" size={20} color={C.tint} />
-          </Pressable>
-        </View>
-
-        <ScrollView contentContainerStyle={[styles.viewContent, { paddingBottom: bottomPad + 40 }]}>
-          {/* Hero section */}
-          <View style={[styles.hero, { backgroundColor: color + "18", borderBottomColor: color + "30" }]}>
-            <View style={[styles.heroColorBar, { backgroundColor: color }]} />
-            <MemberAvatar
-              name={existing.name}
-              color={color}
-              avatarUrl={existing.avatarUrl}
-              size={90}
-              isFronting={existing.isFronting}
-            />
-            <Text style={[styles.heroName, { color: C.text }]}>{existing.name}</Text>
-            {existing.pronouns ? (
-              <Text style={[styles.heroPronouns, { color: C.textSecondary }]}>{existing.pronouns}</Text>
-            ) : null}
-            {existing.isFronting ? (
-              <View style={[styles.frontingBadge, { backgroundColor: C.success + "22", borderColor: C.success + "44" }]}>
-                <View style={[styles.frontDot, { backgroundColor: C.success }]} />
-                <Text style={[styles.frontingText, { color: C.success }]}>Currently Fronting</Text>
-              </View>
-            ) : null}
-          </View>
-
-          {existing.groups && existing.groups.length > 0 ? (
-          <View style={[styles.infoCard, { backgroundColor: C.surface, borderColor: C.border }]}>
-            <View style={styles.infoRow}>
-              <Text style={[styles.infoLabel, { color: C.textSecondary }]}>Groups</Text>
-              <View style={{ flex: 1, flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
-                {existing.groups.map((g) => (
-                  <View
-                    key={g.id}
-                    style={{
-                      paddingHorizontal: 8,
-                      paddingVertical: 4,
-                      borderRadius: 999,
-                      borderWidth: 1,
-                      borderColor: g.color || C.border,
-                      backgroundColor: (g.color || C.surface) + "26",
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontSize: 12,
-                        fontFamily: "Inter_500Medium",
-                        color: g.color || C.textSecondary,
-                      }}
-                    >
-                      {g.name}
-                    </Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          </View>
-
-//          {/* Color swatch */}
-//          <View style={[styles.infoCard, { backgroundColor: C.surface, borderColor: C.border }]}>
-//            <View style={styles.infoRow}>
-//              <Text style={[styles.infoLabel, { color: C.textSecondary }]}>Color</Text>
-//              <View style={styles.colorDisplay}>
-//                <View style={[styles.colorSwatch, { backgroundColor: color }]} />
-//                <Text style={[styles.colorHex, { color: C.textSecondary }]}>{color.toUpperCase()}</Text>
-//              </View>
-//            </View>
-//            {existing.avatarUrl ? (
-//              <>
-//                <View style={[styles.infoDivider, { backgroundColor: C.border }]} />
-//                <View style={styles.infoRow}>
-//                  <Text style={[styles.infoLabel, { color: C.textSecondary }]}>Avatar</Text>
-//                  <Text style={[styles.infoValue, { color: C.textTertiary }]} numberOfLines={1}>{existing.avatarUrl}</Text>
-//                </View>
-//              </>
-//            ) : null}
-//          </View>
-
-          {/* Description */}
-          {existing.description ? (
-            <>
-              <Text style={[styles.sectionLabel, { color: C.textSecondary }]}>DESCRIPTION</Text>
-              <View style={[styles.descCard, { backgroundColor: C.surface, borderColor: C.border }]}>
-                <Markdown style={markdownStyles as any}>{existing.description}</Markdown>
-              </View>
-            </>
-          ) : (
-            <Pressable
-              onPress={handleEdit}
-              style={[styles.addDescBtn, { backgroundColor: C.surface, borderColor: C.border }]}
-            >
-              <Ionicons name="document-text-outline" size={18} color={C.textTertiary} />
-              <Text style={[styles.addDescText, { color: C.textTertiary }]}>Add a description…</Text>
+        <View style={[styles.container, { backgroundColor: C.background }]}>
+          <View style={[styles.navBar, { paddingTop: topPad + 8 }]}>
+            <Pressable onPress={() => router.back()} style={styles.navSide}>
+              <Ionicons name="chevron-back" size={22} color={C.tint} />
+              <Text style={[styles.navSideText, { color: C.tint }]}>Back</Text>
             </Pressable>
-          )}
+            <View style={styles.navCenter} />
+            <Pressable onPress={handleEdit} style={[styles.navSide, styles.navSideRight]}>
+              <Text style={[styles.navSideText, { color: C.tint }]}>Edit</Text>
+              <Ionicons name="create-outline" size={20} color={C.tint} />
+            </Pressable>
+          </View>
 
-          <Pressable
-            onPress={handleDelete}
-            style={[styles.deleteBtn, { backgroundColor: C.destructive + "18", borderColor: C.destructive + "40" }]}
-          >
-            <Ionicons name="trash-outline" size={16} color={C.destructive} />
-            <Text style={[styles.deleteText, { color: C.destructive }]}>Delete Member</Text>
-          </Pressable>
-        </ScrollView>
-      </View>
+          <ScrollView contentContainerStyle={[styles.viewContent, { paddingBottom: bottomPad + 40 }]}>
+            {/* Hero section */}
+            <View style={[styles.hero, { backgroundColor: color + "18", borderBottomColor: color + "30" }]}>
+              <View style={[styles.heroColorBar, { backgroundColor: color }]} />
+              <MemberAvatar
+                  name={existing.name}
+                  color={color}
+                  avatarUrl={existing.avatarUrl}
+                  size={90}
+                  isFronting={existing.isFronting}
+              />
+              <Text style={[styles.heroName, { color: C.text }]}>{existing.name}</Text>
+              {existing.pronouns ? (
+                  <Text style={[styles.heroPronouns, { color: C.textSecondary }]}>{existing.pronouns}</Text>
+              ) : null}
+              {existing.isFronting ? (
+                  <View style={[styles.frontingBadge, { backgroundColor: C.success + "22", borderColor: C.success + "44" }]}>
+                    <View style={[styles.frontDot, { backgroundColor: C.success }]} />
+                    <Text style={[styles.frontingText, { color: C.success }]}>Currently Fronting</Text>
+                  </View>
+              ) : null}
+            </View>
+
+            {existing.groups && existing.groups.length > 0 ? (
+                <View style={[styles.infoCard, { backgroundColor: C.surface, borderColor: C.border }]}>
+                  <View style={styles.infoRow}>
+                    <Text style={[styles.infoLabel, { color: C.textSecondary }]}>Groups</Text>
+                    <View style={{ flex: 1, flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
+                      {existing.groups.map((g) => (
+                          <View
+                              key={g.id}
+                              style={{
+                                paddingHorizontal: 8,
+                                paddingVertical: 4,
+                                borderRadius: 999,
+                                borderWidth: 1,
+                                borderColor: g.color || C.border,
+                                backgroundColor: (g.color || C.surface) + "26",
+                              }}
+                          >
+                            <Text
+                                style={{
+                                  fontSize: 12,
+                                  fontFamily: "Inter_500Medium",
+                                  color: g.color || C.textSecondary,
+                                }}
+                            >
+                              {g.name}
+                            </Text>
+                          </View>
+                      ))}
+                    </View>
+                  </View>
+                </View>
+            ) : null}
+
+            {/* Description */}
+            {existing.description ? (
+                <>
+                  <Text style={[styles.sectionLabel, { color: C.textSecondary }]}>DESCRIPTION</Text>
+                  <View style={[styles.descCard, { backgroundColor: C.surface, borderColor: C.border }]}>
+                    <Markdown style={markdownStyles as any}>{existing.description}</Markdown>
+                  </View>
+                </>
+            ) : (
+                <Pressable
+                    onPress={handleEdit}
+                    style={[styles.addDescBtn, { backgroundColor: C.surface, borderColor: C.border }]}
+                >
+                  <Ionicons name="document-text-outline" size={18} color={C.textTertiary} />
+                  <Text style={[styles.addDescText, { color: C.textTertiary }]}>Add a description…</Text>
+                </Pressable>
+            )}
+
+            <Pressable
+                onPress={handleDelete}
+                style={[styles.deleteBtn, { backgroundColor: C.destructive + "18", borderColor: C.destructive + "40" }]}
+            >
+              <Ionicons name="trash-outline" size={16} color={C.destructive} />
+              <Text style={[styles.deleteText, { color: C.destructive }]}>Delete Member</Text>
+            </Pressable>
+          </ScrollView>
+        </View>
     );
   }
 
   // Edit mode
   return (
-    <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: C.background }]}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <View style={[styles.navBar, { paddingTop: topPad + 8 }]}>
-        <Pressable onPress={handleCancel} style={styles.navSide}>
-          <Ionicons name="chevron-back" size={22} color={C.tint} />
-          <Text style={[styles.navSideText, { color: C.tint }]}>{isNew ? "Back" : "Cancel"}</Text>
-        </Pressable>
-        <Text style={[styles.navTitle, { color: C.text }]}>{isNew ? "New Member" : "Edit Member"}</Text>
-        <Pressable onPress={handleSave} disabled={saving} style={[styles.navSide, styles.navSideRight]}>
-          {saving ? (
-            <ActivityIndicator size="small" color={C.tint} />
-          ) : (
-            <Text style={[styles.saveText, { color: C.tint }]}>Save</Text>
-          )}
-        </Pressable>
-      </View>
-
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPad + 40 }]}>
-        <View style={styles.avatarSection}>
-          <MemberAvatar
-            name={name || "?"}
-            color={color}
-            avatarUrl={avatarUrl || null}
-            size={88}
-            isFronting={existing?.isFronting || false}
-          />
+      <KeyboardAvoidingView
+          style={[styles.container, { backgroundColor: C.background }]}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <View style={[styles.navBar, { paddingTop: topPad + 8 }]}>
+          <Pressable onPress={handleCancel} style={styles.navSide}>
+            <Ionicons name="chevron-back" size={22} color={C.tint} />
+            <Text style={[styles.navSideText, { color: C.tint }]}>{isNew ? "Back" : "Cancel"}</Text>
+          </Pressable>
+          <Text style={[styles.navTitle, { color: C.text }]}>{isNew ? "New Member" : "Edit Member"}</Text>
+          <Pressable onPress={handleSave} disabled={saving} style={[styles.navSide, styles.navSideRight]}>
+            {saving ? (
+                <ActivityIndicator size="small" color={C.tint} />
+            ) : (
+                <Text style={[styles.saveText, { color: C.tint }]}>Save</Text>
+            )}
+          </Pressable>
         </View>
 
-        <View style={[styles.section, { backgroundColor: C.surface, borderColor: C.border }]}>
-          <View style={styles.fieldRow}>
-            <Text style={[styles.label, { color: C.textSecondary }]}>Name</Text>
-            <TextInput
-              value={name}
-              onChangeText={setName}
-              placeholder="Member name"
-              placeholderTextColor={C.textTertiary}
-              style={[styles.input, { color: C.text }]}
-              autoFocus={isNew}
+        <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPad + 40 }]}>
+          <View style={styles.avatarSection}>
+            <MemberAvatar
+                name={name || "?"}
+                color={color}
+                avatarUrl={avatarUrl || null}
+                size={88}
+                isFronting={existing?.isFronting || false}
             />
           </View>
-          <View style={[styles.divider, { backgroundColor: C.border }]} />
-          <View style={styles.fieldRow}>
-            <Text style={[styles.label, { color: C.textSecondary }]}>Pronouns</Text>
-            <TextInput
-              value={pronouns}
-              onChangeText={setPronouns}
-              placeholder=""
-              placeholderTextColor={C.textTertiary}
-              style={[styles.input, { color: C.text }]}
-            />
-          </View>
-        </View>
 
-        <Text style={[styles.sectionLabel, { color: C.textSecondary }]}>COLOR</Text>
-        <View style={[styles.colorSection, { backgroundColor: C.surface, borderColor: C.border }]}>
-          <ColorPicker selected={color} onSelect={setColor} />
-          <View style={[styles.hexDivider, { backgroundColor: C.border }]} />
-          <View style={styles.hexRow}>
-            <Text style={[styles.hexLabel, { color: C.textSecondary }]}>Custom Hex</Text>
-            <View style={[styles.hexInputContainer, { borderColor: C.border }]}>
-              <Text style={[styles.hexHash, { color: C.textTertiary }]}>#</Text>
+          <View style={[styles.section, { backgroundColor: C.surface, borderColor: C.border }]}>
+            <View style={styles.fieldRow}>
+              <Text style={[styles.label, { color: C.textSecondary }]}>Name</Text>
               <TextInput
-                value={color.startsWith("#") ? color.slice(1) : color}
-                onChangeText={(val) => {
-                  const hex = val.toUpperCase();
-                  if (hex === "" || /^[0-9A-F]{0,6}$/.test(hex)) {
-                    setColor(hex.length === 6 ? "#" + hex : hex);
-                  }
-                }}
-                placeholder="A9D3EF"
-                placeholderTextColor={C.textTertiary}
-                style={[styles.hexInput, { color: C.text }]}
-                maxLength={6}
-                autoCapitalize="characters"
+                  value={name}
+                  onChangeText={setName}
+                  placeholder="Member name"
+                  placeholderTextColor={C.textTertiary}
+                  style={[styles.input, { color: C.text }]}
+                  autoFocus={isNew}
               />
             </View>
-            <View
-              style={[
-                styles.hexPreview,
-                {
-                  backgroundColor: /^#[0-9A-Fa-f]{6}$/.test(color) ? color : C.textTertiary,
-                  borderColor: /^#[0-9A-Fa-f]{6}$/.test(color) ? color : C.border,
-                },
-              ]}
-            />
+            <View style={[styles.divider, { backgroundColor: C.border }]} />
+            <View style={styles.fieldRow}>
+              <Text style={[styles.label, { color: C.textSecondary }]}>Pronouns</Text>
+              <TextInput
+                  value={pronouns}
+                  onChangeText={setPronouns}
+                  placeholder=""
+                  placeholderTextColor={C.textTertiary}
+                  style={[styles.input, { color: C.text }]}
+              />
+            </View>
           </View>
-        </View>
 
-        <Text style={[styles.sectionLabel, { color: C.textSecondary }]}>AVATAR URL</Text>
-        <View style={[styles.section, { backgroundColor: C.surface, borderColor: C.border }]}>
-          <View style={styles.fieldRow}>
-            <TextInput
-              value={avatarUrl}
-              onChangeText={setAvatarUrl}
-              placeholder="https://..."
-              placeholderTextColor={C.textTertiary}
-              style={[styles.input, { color: C.text }]}
-              autoCapitalize="none"
-              keyboardType="url"
-            />
+          <Text style={[styles.sectionLabel, { color: C.textSecondary }]}>COLOR</Text>
+          <View style={[styles.colorSection, { backgroundColor: C.surface, borderColor: C.border }]}>
+            <ColorPicker selected={color} onSelect={setColor} />
+            <View style={[styles.hexDivider, { backgroundColor: C.border }]} />
+            <View style={styles.hexRow}>
+              <Text style={[styles.hexLabel, { color: C.textSecondary }]}>Custom Hex</Text>
+              <View style={[styles.hexInputContainer, { borderColor: C.border }]}>
+                <Text style={[styles.hexHash, { color: C.textTertiary }]}>#</Text>
+                <TextInput
+                    value={color.startsWith("#") ? color.slice(1) : color}
+                    onChangeText={(val) => {
+                      const hex = val.toUpperCase();
+                      if (hex === "" || /^[0-9A-F]{0,6}$/.test(hex)) {
+                        setColor(hex.length === 6 ? "#" + hex : hex);
+                      }
+                    }}
+                    placeholder="A9D3EF"
+                    placeholderTextColor={C.textTertiary}
+                    style={[styles.hexInput, { color: C.text }]}
+                    maxLength={6}
+                    autoCapitalize="characters"
+                />
+              </View>
+              <View
+                  style={[
+                    styles.hexPreview,
+                    {
+                      backgroundColor: /^#[0-9A-Fa-f]{6}$/.test(color) ? color : C.textTertiary,
+                      borderColor: /^#[0-9A-Fa-f]{6}$/.test(color) ? color : C.border,
+                    },
+                  ]}
+              />
+            </View>
           </View>
-        </View>
 
-        <Text style={[styles.sectionLabel, { color: C.textSecondary }]}>GROUPS</Text>
-        <View style={[styles.section, { backgroundColor: C.surface, borderColor: C.border }]}>
-          <View style={[styles.groupChipsRow]}>
-            {groups.length === 0 ? (
-                <Text style={{ color: C.textTertiary, padding: 12 }}>
-                  No groups yet. Create some in the Groups tab.
-                </Text>
-            ) : (
-                groups.map((g) => {
-                  const selected = selectedGroupIds.includes(g.id);
-                  return (
-                      <Pressable
-                          key={g.id}
-                          onPress={() =>
-                              setSelectedGroupIds((prev) =>
-                                  prev.includes(g.id) ? prev.filter((id) => id !== g.id) : [...prev, g.id],
-                              )
-                          }
-                          style={[
-                            styles.groupChip,
-                            {
-                              borderColor: selected ? (g.color ?? C.tint) : C.border,
-                              backgroundColor: selected ? (g.color ?? C.tint) + "26" : C.surface,
-                            },
-                          ]}
-                      >
-                        <Text
-                            style={{
-                              color: selected ? (g.color ?? C.tint) : C.textSecondary,
-                              fontFamily: "Inter_500Medium",
-                              fontSize: 12,
-                            }}
+          <Text style={[styles.sectionLabel, { color: C.textSecondary }]}>AVATAR URL</Text>
+          <View style={[styles.section, { backgroundColor: C.surface, borderColor: C.border }]}>
+            <View style={styles.fieldRow}>
+              <TextInput
+                  value={avatarUrl}
+                  onChangeText={setAvatarUrl}
+                  placeholder="https://..."
+                  placeholderTextColor={C.textTertiary}
+                  style={[styles.input, { color: C.text }]}
+                  autoCapitalize="none"
+                  keyboardType="url"
+              />
+            </View>
+          </View>
+
+          <Text style={[styles.sectionLabel, { color: C.textSecondary }]}>GROUPS</Text>
+          <View style={[styles.section, { backgroundColor: C.surface, borderColor: C.border }]}>
+            <View style={[styles.groupChipsRow]}>
+              {groups.length === 0 ? (
+                  <Text style={{ color: C.textTertiary, padding: 12 }}>
+                    No groups yet. Create some in the Groups tab.
+                  </Text>
+              ) : (
+                  groups.map((g) => {
+                    const selected = selectedGroupIds.includes(g.id);
+                    return (
+                        <Pressable
+                            key={g.id}
+                            onPress={() =>
+                                setSelectedGroupIds((prev) =>
+                                    prev.includes(g.id) ? prev.filter((id) => id !== g.id) : [...prev, g.id],
+                                )
+                            }
+                            style={[
+                              styles.groupChip,
+                              {
+                                borderColor: selected ? (g.color ?? C.tint) : C.border,
+                                backgroundColor: selected ? (g.color ?? C.tint) + "26" : C.surface,
+                              },
+                            ]}
                         >
-                          {g.name}
-                        </Text>
-                      </Pressable>
-                  );
-                })
+                          <Text
+                              style={{
+                                color: selected ? (g.color ?? C.tint) : C.textSecondary,
+                                fontFamily: "Inter_500Medium",
+                                fontSize: 12,
+                              }}
+                          >
+                            {g.name}
+                          </Text>
+                        </Pressable>
+                    );
+                  })
+              )}
+            </View>
+          </View>
+
+          <View style={styles.descHeader}>
+            <View>
+              <Text style={[styles.sectionLabel, { color: C.textSecondary, marginBottom: 0 }]}>DESCRIPTION</Text>
+              <Text style={[styles.descHint, { color: C.textTertiary }]}>
+                **bold**, *italic*, # heading, {">"} quote
+              </Text>
+            </View>
+            <View style={[styles.toggleRow, { backgroundColor: C.surfaceElevated, borderColor: C.border }]}>
+              <Pressable
+                  onPress={() => setDescTab("edit")}
+                  style={[styles.toggleBtn, descTab === "edit" && { backgroundColor: C.tint }]}
+              >
+                <Text style={[styles.toggleText, { color: descTab === "edit" ? "#fff" : C.textSecondary }]}>Edit</Text>
+              </Pressable>
+              <Pressable
+                  onPress={() => setDescTab("preview")}
+                  style={[styles.toggleBtn, descTab === "preview" && { backgroundColor: C.tint }]}
+              >
+                <Text style={[styles.toggleText, { color: descTab === "preview" ? "#fff" : C.textSecondary }]}>Preview</Text>
+              </Pressable>
+            </View>
+          </View>
+          <View style={[styles.section, { backgroundColor: C.surface, borderColor: C.border }]}>
+            {descTab === "edit" ? (
+                <TextInput
+                    value={description}
+                    onChangeText={setDescription}
+                    placeholder=""
+                    placeholderTextColor={C.textTertiary}
+                    style={[styles.descInput, { color: C.text }]}
+                    multiline
+                    numberOfLines={8}
+                    textAlignVertical="top"
+                />
+            ) : description.trim() ? (
+                <View style={styles.markdownWrapper}>
+                  <Markdown style={markdownStyles as any}>{description}</Markdown>
+                </View>
+            ) : (
+                <View style={styles.emptyPreview}>
+                  <Text style={[styles.emptyPreviewText, { color: C.textTertiary }]}>Nothing to preview yet</Text>
+                </View>
             )}
           </View>
-        </View>
 
-        <View style={styles.descHeader}>
-          <View>
-            <Text style={[styles.sectionLabel, { color: C.textSecondary, marginBottom: 0 }]}>DESCRIPTION</Text>
-            <Text style={[styles.descHint, { color: C.textTertiary }]}>
-              **bold**, *italic*, # heading, {">"} quote
-            </Text>
-          </View>
-          <View style={[styles.toggleRow, { backgroundColor: C.surfaceElevated, borderColor: C.border }]}>
-            <Pressable
-              onPress={() => setDescTab("edit")}
-              style={[styles.toggleBtn, descTab === "edit" && { backgroundColor: C.tint }]}
-            >
-              <Text style={[styles.toggleText, { color: descTab === "edit" ? "#fff" : C.textSecondary }]}>Edit</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => setDescTab("preview")}
-              style={[styles.toggleBtn, descTab === "preview" && { backgroundColor: C.tint }]}
-            >
-              <Text style={[styles.toggleText, { color: descTab === "preview" ? "#fff" : C.textSecondary }]}>Preview</Text>
-            </Pressable>
-          </View>
-        </View>
-        <View style={[styles.section, { backgroundColor: C.surface, borderColor: C.border }]}>
-          {descTab === "edit" ? (
-            <TextInput
-              value={description}
-              onChangeText={setDescription}
-              placeholder=""
-              placeholderTextColor={C.textTertiary}
-              style={[styles.descInput, { color: C.text }]}
-              multiline
-              numberOfLines={8}
-              textAlignVertical="top"
-            />
-          ) : description.trim() ? (
-            <View style={styles.markdownWrapper}>
-              <Markdown style={markdownStyles as any}>{description}</Markdown>
-            </View>
-          ) : (
-            <View style={styles.emptyPreview}>
-              <Text style={[styles.emptyPreviewText, { color: C.textTertiary }]}>Nothing to preview yet</Text>
-            </View>
+          {!isNew && (
+              <Pressable
+                  onPress={handleDelete}
+                  style={[styles.deleteBtn, { backgroundColor: C.destructive + "18", borderColor: C.destructive + "40" }]}
+              >
+                <Ionicons name="trash-outline" size={16} color={C.destructive} />
+                <Text style={[styles.deleteText, { color: C.destructive }]}>Delete Member</Text>
+              </Pressable>
           )}
-        </View>
-
-        {!isNew && (
-          <Pressable
-            onPress={handleDelete}
-            style={[styles.deleteBtn, { backgroundColor: C.destructive + "18", borderColor: C.destructive + "40" }]}
-          >
-            <Ionicons name="trash-outline" size={16} color={C.destructive} />
-            <Text style={[styles.deleteText, { color: C.destructive }]}>Delete Member</Text>
-          </Pressable>
-        )}
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
   );
 }
 

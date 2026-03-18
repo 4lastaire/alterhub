@@ -28,9 +28,12 @@ export default function MemberDetailScreen() {
   const idParam = params.id;
   const id = Array.isArray(idParam) ? idParam[0] : idParam ?? "new";
   const isNew = id === "new";
-  const { members, createMember, updateMember, deleteMember, fetchMembers } = useSystem();
+  const { members, createMember, updateMember, deleteMember, fetchMembers, groups } = useSystem();
 
   const existing = members.find((m) => m.id === id);
+  const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>(
+      existing?.groups.map((g) => g.id) ?? [],
+  );
 
   const [mode, setMode] = useState<"view" | "edit">(isNew ? "edit" : "view");
   const [name, setName] = useState(existing?.name || "");
@@ -38,7 +41,6 @@ export default function MemberDetailScreen() {
   const [description, setDescription] = useState(existing?.description || "");
   const [color, setColor] = useState(existing?.color || "#4ECDC4");
   const [avatarUrl, setAvatarUrl] = useState(existing?.avatarUrl || "");
-  const [folder, setFolder] = useState(existing?.folder || "");
   const [saving, setSaving] = useState(false);
   const [descTab, setDescTab] = useState<"edit" | "preview">("edit");
 
@@ -85,7 +87,7 @@ export default function MemberDetailScreen() {
         description: description.trim() || null,
         color,
         avatarUrl: avatarUrl.trim() || null,
-        folder: folder.trim() || null,
+        groupIds: selectedGroupIds,
       };
       if (isNew) {
         await createMember(payload as any);
@@ -201,25 +203,57 @@ export default function MemberDetailScreen() {
             ) : null}
           </View>
 
-          {/* Color swatch */}
+          {existing.groups && existing.groups.length > 0 ? (
           <View style={[styles.infoCard, { backgroundColor: C.surface, borderColor: C.border }]}>
             <View style={styles.infoRow}>
-              <Text style={[styles.infoLabel, { color: C.textSecondary }]}>Color</Text>
-              <View style={styles.colorDisplay}>
-                <View style={[styles.colorSwatch, { backgroundColor: color }]} />
-                <Text style={[styles.colorHex, { color: C.textSecondary }]}>{color.toUpperCase()}</Text>
+              <Text style={[styles.infoLabel, { color: C.textSecondary }]}>Groups</Text>
+              <View style={{ flex: 1, flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
+                {existing.groups.map((g) => (
+                  <View
+                    key={g.id}
+                    style={{
+                      paddingHorizontal: 8,
+                      paddingVertical: 4,
+                      borderRadius: 999,
+                      borderWidth: 1,
+                      borderColor: g.color || C.border,
+                      backgroundColor: (g.color || C.surface) + "26",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 12,
+                        fontFamily: "Inter_500Medium",
+                        color: g.color || C.textSecondary,
+                      }}
+                    >
+                      {g.name}
+                    </Text>
+                  </View>
+                ))}
               </View>
             </View>
-            {existing.avatarUrl ? (
-              <>
-                <View style={[styles.infoDivider, { backgroundColor: C.border }]} />
-                <View style={styles.infoRow}>
-                  <Text style={[styles.infoLabel, { color: C.textSecondary }]}>Avatar</Text>
-                  <Text style={[styles.infoValue, { color: C.textTertiary }]} numberOfLines={1}>{existing.avatarUrl}</Text>
-                </View>
-              </>
-            ) : null}
           </View>
+
+//          {/* Color swatch */}
+//          <View style={[styles.infoCard, { backgroundColor: C.surface, borderColor: C.border }]}>
+//            <View style={styles.infoRow}>
+//              <Text style={[styles.infoLabel, { color: C.textSecondary }]}>Color</Text>
+//              <View style={styles.colorDisplay}>
+//                <View style={[styles.colorSwatch, { backgroundColor: color }]} />
+//                <Text style={[styles.colorHex, { color: C.textSecondary }]}>{color.toUpperCase()}</Text>
+//              </View>
+//            </View>
+//            {existing.avatarUrl ? (
+//              <>
+//                <View style={[styles.infoDivider, { backgroundColor: C.border }]} />
+//                <View style={styles.infoRow}>
+//                  <Text style={[styles.infoLabel, { color: C.textSecondary }]}>Avatar</Text>
+//                  <Text style={[styles.infoValue, { color: C.textTertiary }]} numberOfLines={1}>{existing.avatarUrl}</Text>
+//                </View>
+//              </>
+//            ) : null}
+//          </View>
 
           {/* Description */}
           {existing.description ? (
@@ -301,21 +335,7 @@ export default function MemberDetailScreen() {
             <TextInput
               value={pronouns}
               onChangeText={setPronouns}
-              placeholder="he/him, she/her, they/them..."
-              placeholderTextColor={C.textTertiary}
-              style={[styles.input, { color: C.text }]}
-            />
-          </View>
-        </View>
-
-        <Text style={[styles.sectionLabel, { color: C.textSecondary }]}>FOLDER</Text>
-        <View style={[styles.section, { backgroundColor: C.surface, borderColor: C.border }]}>
-          <View style={styles.fieldRow}>
-            <Text style={[styles.label, { color: C.textSecondary }]}>Folder</Text>
-            <TextInput
-              value={folder}
-              onChangeText={setFolder}
-              placeholder="e.g. Work, IRL, Online"
+              placeholder=""
               placeholderTextColor={C.textTertiary}
               style={[styles.input, { color: C.text }]}
             />
@@ -338,7 +358,7 @@ export default function MemberDetailScreen() {
                     setColor(hex.length === 6 ? "#" + hex : hex);
                   }
                 }}
-                placeholder="4ECDC4"
+                placeholder="A9D3EF"
                 placeholderTextColor={C.textTertiary}
                 style={[styles.hexInput, { color: C.text }]}
                 maxLength={6}
@@ -372,6 +392,48 @@ export default function MemberDetailScreen() {
           </View>
         </View>
 
+        <Text style={[styles.sectionLabel, { color: C.textSecondary }]}>GROUPS</Text>
+        <View style={[styles.section, { backgroundColor: C.surface, borderColor: C.border }]}>
+          <View style={[styles.groupChipsRow]}>
+            {groups.length === 0 ? (
+                <Text style={{ color: C.textTertiary, padding: 12 }}>
+                  No groups yet. Create some in the Groups tab.
+                </Text>
+            ) : (
+                groups.map((g) => {
+                  const selected = selectedGroupIds.includes(g.id);
+                  return (
+                      <Pressable
+                          key={g.id}
+                          onPress={() =>
+                              setSelectedGroupIds((prev) =>
+                                  prev.includes(g.id) ? prev.filter((id) => id !== g.id) : [...prev, g.id],
+                              )
+                          }
+                          style={[
+                            styles.groupChip,
+                            {
+                              borderColor: selected ? (g.color ?? C.tint) : C.border,
+                              backgroundColor: selected ? (g.color ?? C.tint) + "26" : C.surface,
+                            },
+                          ]}
+                      >
+                        <Text
+                            style={{
+                              color: selected ? (g.color ?? C.tint) : C.textSecondary,
+                              fontFamily: "Inter_500Medium",
+                              fontSize: 12,
+                            }}
+                        >
+                          {g.name}
+                        </Text>
+                      </Pressable>
+                  );
+                })
+            )}
+          </View>
+        </View>
+
         <View style={styles.descHeader}>
           <View>
             <Text style={[styles.sectionLabel, { color: C.textSecondary, marginBottom: 0 }]}>DESCRIPTION</Text>
@@ -399,7 +461,7 @@ export default function MemberDetailScreen() {
             <TextInput
               value={description}
               onChangeText={setDescription}
-              placeholder="Write a description..."
+              placeholder=""
               placeholderTextColor={C.textTertiary}
               style={[styles.descInput, { color: C.text }]}
               multiline
@@ -749,5 +811,18 @@ const styles = StyleSheet.create({
   emptyPreviewText: {
     fontSize: 14,
     fontFamily: "Inter_400Regular",
+  },
+  groupChipsRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  groupChip: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+    borderWidth: 1,
   },
 });

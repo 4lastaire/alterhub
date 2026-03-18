@@ -16,7 +16,6 @@ export interface Member {
   description?: string;
   color: string;
   avatarUrl?: string;
-  folder?: string;
   isFronting: boolean;
   createdAt: string;
   updatedAt: string;
@@ -28,7 +27,6 @@ export interface CreateMemberInput {
   description?: string;
   color: string;
   avatarUrl?: string;
-  folder?: string;
 }
 
 export interface UpdateMemberInput {
@@ -37,7 +35,6 @@ export interface UpdateMemberInput {
   description?: string;
   color?: string;
   avatarUrl?: string;
-  folder?: string;
 }
 
 export interface FrontSession {

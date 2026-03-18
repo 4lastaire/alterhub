@@ -12,6 +12,10 @@ import Colors from "@/constants/colors";
 function NativeTabLayout() {
   return (
     <NativeTabs>
+      <NativeTabs.Trigger name="groups">
+        <Icon sf={{ default: "folder", selected: "folder.fill"}} />
+        <Label>Groups</Label>
+      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="index">
         <Icon sf={{ default: "person.2", selected: "person.2.fill" }} />
         <Label>Members</Label>
@@ -61,6 +65,18 @@ function ClassicTabLayout() {
           ) : null,
       }}
     >
+      <Tabs.Screen
+        name="groups"
+        options={{
+          title: "Groups",
+          tabBarIcon: ({ color }) =>
+            isIOS ? (
+              <SymbolView name="folder" tintColor={color} size={24} />
+            ) : (
+              <Ionicons name="folder-outline" size={22} color={color} />
+            ),
+        }}
+      />
       <Tabs.Screen
         name="index"
         options={{

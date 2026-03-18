@@ -2,6 +2,12 @@ import React, { createContext, useCallback, useContext, useEffect, useState } fr
 import { getApiUrl } from "@/utils/api";
 import { Platform } from "react-native";
 
+export type Group = {
+  id: string;
+  name: string;
+  color?: string | null;
+};
+
 export type Member = {
   id: string;
   name: string;
@@ -9,10 +15,10 @@ export type Member = {
   description?: string | null;
   color: string;
   avatarUrl?: string | null;
-  folder?: string | null;
   isFronting: boolean;
   createdAt: string;
   updatedAt: string;
+  groups: Group[];
 };
 
 export type FrontSession = {
@@ -29,11 +35,13 @@ export type FrontSession = {
 
 type SystemContextType = {
   members: Member[];
+  groups: Group[];
   fronters: FrontSession[];
   frontHistory: FrontSession[];
   isLoading: boolean;
   historyLoading: boolean;
   fetchMembers: () => Promise<void>;
+  fetchGroups: () => Promise<void>;
   fetchFronters: () => Promise<void>;
   fetchFrontHistory: (startDate?: string, endDate?: string) => Promise<void>;
   createMember: (data: { name: string; pronouns?: string | null; description?: string | null; color: string; avatarUrl?: string | null }) => Promise<Member>;
@@ -98,6 +106,7 @@ function getDefaultRange() {
 
 export function SystemProvider({ children }: { children: React.ReactNode }) {
   const [members, setMembers] = useState<Member[]>([]);
+  const [groups, setGroups] = useState<Group[]>([]);
   const [fronters, setFronters] = useState<FrontSession[]>([]);
   const [frontHistory, setFrontHistory] = useState<FrontSession[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -124,6 +133,21 @@ export function SystemProvider({ children }: { children: React.ReactNode }) {
       console.error("fetchMembers error:", e);
     } finally {
       setIsLoading(false);
+    }
+  }, []);
+
+  const fetchGroups = useCallback(async () => {
+    if (isWebWithoutApi()) {
+      // no backend; can just skip or add localStorage later
+      return;
+    }
+    try {
+      const res = await fetch(`${getApiUrl()}/api/groups`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      setGroups(data);
+    } catch (e) {
+      console.error("fetchGroups error:", e);
     }
   }, []);
 
@@ -196,7 +220,7 @@ export function SystemProvider({ children }: { children: React.ReactNode }) {
     const res = await fetch(`${getApiUrl()}/api/members`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: JSON.stringify({ ...data, groupIds }),
     });
     if (!res.ok) {
       const text = await res.text().catch(() => "");
@@ -229,7 +253,7 @@ export function SystemProvider({ children }: { children: React.ReactNode }) {
     const res = await fetch(`${getApiUrl()}/api/members/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: JSON.stringify({ ...data, groupIds }),
     });
     if (!res.ok) {
       const text = await res.text().catch(() => "");
@@ -417,6 +441,7 @@ export function SystemProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     fetchMembers();
+    fetchGroups();
     fetchFronters();
   }, []);
 
@@ -424,11 +449,13 @@ export function SystemProvider({ children }: { children: React.ReactNode }) {
     <SystemContext.Provider
       value={{
         members,
+        groups,
         fronters,
         frontHistory,
         isLoading,
         historyLoading,
         fetchMembers,
+        fetchGroups,
         fetchFronters,
         fetchFrontHistory,
         createMember,

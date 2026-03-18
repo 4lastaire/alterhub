@@ -9,7 +9,6 @@ export const membersTable = pgTable("members", {
   description: text("description"),
   color: text("color").notNull().default("#4CAF50"),
   avatarUrl: text("avatar_url"),
-  folder: text("folder"),
   isFronting: boolean("is_fronting").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),

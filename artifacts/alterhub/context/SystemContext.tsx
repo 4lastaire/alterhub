@@ -1,4 +1,12 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { getApiUrl } from "@/utils/api";
 import { Platform } from "react-native";
 
@@ -104,6 +112,15 @@ function makeId(): string {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
+function getFrontersSignature(list: FrontSession[]): string {
+  // Stable signature so we only notify when fronting actually changes.
+  // (Ignores ordering changes.)
+  return list
+    .map((s) => `${s.memberId}:${s.customStatus ?? ""}`)
+    .sort()
+    .join("|");
+}
+
 export function useSystem(): SystemContextType {
   const ctx = useContext(SystemContext);
   if (!ctx) throw new Error("useSystem must be used within SystemProvider");
@@ -129,6 +146,57 @@ export function SystemProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyRange, setHistoryRange] = useState(getDefaultRange);
+
+  const lastNotifiedSignatureRef = useRef<string | null>(null);
+  const lastNotifyAtRef = useRef<number>(0);
+  const initializedRef = useRef(false);
+
+  const currentFrontersSignature = useMemo(
+    () => getFrontersSignature(fronters),
+    [fronters],
+  );
+
+  const showFrontersNotification = useCallback(
+    async (nextFronters: FrontSession[]) => {
+      if (typeof window === "undefined") return;
+      if (!("Notification" in window)) return;
+
+      // Request permission if needed (best-effort; browser may require a user gesture).
+      if (window.Notification.permission !== "granted") {
+        const requested = await window.Notification.requestPermission().catch(
+          () => window.Notification.permission,
+        );
+        if (requested !== "granted") return;
+      }
+
+      const names = nextFronters.map((s) => s.memberName).filter(Boolean);
+      const title = nextFronters.length ? "Current fronters" : "No one is fronting";
+      const body = nextFronters.length
+        ? names.slice(0, 5).join(", ") +
+          (names.length > 5 ? ` +${names.length - 5} more` : "")
+        : " ";
+
+      // Prefer service-worker notifications when available.
+      try {
+        const reg = await navigator.serviceWorker?.ready;
+        if (reg?.showNotification) {
+          await reg.showNotification(title, {
+            body,
+            tag: "alterhub:fronters",
+            renotify: true,
+          });
+          return;
+        }
+      } catch {
+        // ignore; fall back to direct notification below
+      }
+
+      // Direct notification fallback.
+      // eslint-disable-next-line no-new
+      new window.Notification(title, { body, tag: "alterhub:fronters" });
+    },
+    [],
+  );
 
   const fetchMembers = useCallback(async () => {
     try {
@@ -478,7 +546,35 @@ export function SystemProvider({ children }: { children: React.ReactNode }) {
     fetchMembers();
     fetchGroups();
     fetchFronters();
+    // On web with a real backend, poll so notifications also happen for changes
+    // coming from other clients.
+    if (Platform.OS === "web" && !isWebWithoutApi()) {
+      const interval = setInterval(() => {
+        void fetchFronters();
+      }, 15000);
+      return () => clearInterval(interval);
+    }
+    return;
   }, []);
+
+  useEffect(() => {
+    // First render sets the baseline without notifying.
+    if (!initializedRef.current) {
+      initializedRef.current = true;
+      lastNotifiedSignatureRef.current = currentFrontersSignature;
+      return;
+    }
+
+    if (currentFrontersSignature === lastNotifiedSignatureRef.current) return;
+
+    // Throttle to avoid rapid repeated notifications.
+    const now = Date.now();
+    if (now - lastNotifyAtRef.current < 30000) return;
+
+    lastNotifyAtRef.current = now;
+    lastNotifiedSignatureRef.current = currentFrontersSignature;
+    void showFrontersNotification(fronters);
+  }, [currentFrontersSignature, fronters, showFrontersNotification]);
 
   return (
     <SystemContext.Provider
